@@ -1,0 +1,6 @@
+framework module Pods_scswift_exampleTests {
+  umbrella header "Pods-scswift-exampleTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
