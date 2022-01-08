@@ -1,0 +1,11 @@
+Example/Pods/
+Example/build/
+Example/DerivedData/
+
+## Obj-C/Swift specific
+Example/*.hmap
+
+## App packaging
+Example/*.ipa
+Example/*.dSYM.zip
+Example/*.dSYM
