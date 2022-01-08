@@ -2,8 +2,8 @@
 //  SCHud.swift
 //  SCSwiftExample
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import UIKit
@@ -56,7 +56,7 @@ open class SCHudButton : NSObject {
     }
 }
 
-public protocol SCLabelDelegate : class {
+public protocol SCLabelDelegate : AnyObject {
     func labelDidChangeText(text: String?)
 }
 
@@ -85,7 +85,7 @@ public enum SCHudStyle {
     case rotationOnly(image: UIImage, duration: TimeInterval)
 }
 
-open class SCHud: UIView, SCLabelDelegate, UITableViewDataSource, UITableViewDelegate {
+@objc open class SCHud: UIView, SCLabelDelegate, UITableViewDataSource, UITableViewDelegate {
     
     // MARK: - Views
     
@@ -107,7 +107,8 @@ open class SCHud: UIView, SCLabelDelegate, UITableViewDataSource, UITableViewDel
     
     private var theme = SCHudTheme.dark
     private var style = SCHudStyle.indeterminate
-    var progress: Float = 0
+    @objc public var progress: Float = 0
+    @objc public var isVisible = false
     private var contentOffset: CGFloat = 16
     private var shadowColor: UIColor = .black
     private var shadowOffset: CGSize = .zero
@@ -361,15 +362,16 @@ open class SCHud: UIView, SCLabelDelegate, UITableViewDataSource, UITableViewDel
         }
     }
     
-    open func show(in view: UIView) {
+    @objc open func show(in view: UIView) {
         
         if superview == nil {
             view.addSubview(self)
             autoPinEdgesToSuperviewEdges()
+            isVisible = true
         }
     }
     
-    open func show(in view: UIView, animated: Bool) {
+    @objc open func show(in view: UIView, animated: Bool) {
         
         if superview == nil {
             view.addSubview(self)
@@ -378,19 +380,22 @@ open class SCHud: UIView, SCLabelDelegate, UITableViewDataSource, UITableViewDel
                 alpha = 0.0
                 UIView.animate(withDuration: 0.3) {
                     self.alpha = 1.0
+                } completion: { (_) in
+                    self.isVisible = true
                 }
             }
         }
     }
     
-    open func hide() {
+    @objc open func hide() {
         if tblButtons != nil {
             tblButtons.removeObserver(self, forKeyPath: "contentSize")
         }
         removeFromSuperview()
+        self.isVisible = false
     }
     
-    open func hide(animated: Bool) {
+    @objc open func hide(animated: Bool) {
         
         if animated {
             UIView.animate(withDuration: 0.3, animations: {

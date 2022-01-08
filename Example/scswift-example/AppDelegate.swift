@@ -1,9 +1,9 @@
 //
 //  AppDelegate.swift
-//  scswift-example
+//  SCSwift
 //
-//  Created by Nicola Innocenti on 28/10/2018.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import UIKit
@@ -14,10 +14,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
-        UINavigationBar.appearance().isTranslucent = false
+        if #available(iOS 15, *) {
+            let navAppearance = UINavigationBarAppearance()
+            navAppearance.backgroundColor = .white
+            UINavigationBar.appearance().standardAppearance = navAppearance
+            UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
+        } else {
+            UINavigationBar.appearance().isTranslucent = false
+        }
         
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = UINavigationController(rootViewController: ViewController())

@@ -2,11 +2,12 @@
 //  SCMediaPlayerViewController.swift
 //  SCSwiftExample
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import UIKit
+import PureLayout
 
 public enum MediaType : Int {
     case none = 0
@@ -60,7 +61,7 @@ open class SCMedia : NSObject {
     }
 }
 
-public protocol SCMediaPlayerViewControllerDelegate : class {
+public protocol SCMediaPlayerViewControllerDelegate : AnyObject {
     func mediaPlayerDidTapPlay()
     func mediaPlayerDidTapPause()
     func mediaPlayerDidTapStop()
@@ -69,10 +70,18 @@ public protocol SCMediaPlayerViewControllerDelegate : class {
 
 open class SCMediaPlayerViewController: UIViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate, SCMediaViewControllerDelegate, SCVideoViewControllerDelegate, SCPDFViewControllerDelegate {
     
-    // MARK: - Xibs
+    // MARK: - Layout
     
-    private var pageContainer: UIView!
-    public var pageController: UIPageViewController!
+    private var pageContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        return view
+    }()
+    public var pageController: UIPageViewController = {
+        let page = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
+        page.view.backgroundColor = .clear
+        return page
+    }()
     
     // MARK: - Constants & Variables
     
@@ -107,16 +116,15 @@ open class SCMediaPlayerViewController: UIViewController, UIPageViewControllerDa
         super.viewDidLoad()
         
         view.backgroundColor = backgroundColor
-        
-        pageContainer = UIView(frame: view.frame)
-        pageContainer.backgroundColor = .clear
+        setupLayout()
+    }
+    
+    private func setupLayout() {
         view.insertSubview(pageContainer, at: 0)
         
-        pageController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
         pageController.dataSource = self
         pageController.delegate = self
         pageController.view.frame = CGRect(origin: CGPoint(x: 0.0, y: 0.0), size: pageContainer.frame.size)
-        pageController.view.backgroundColor = .clear
         
         if let viewController = self.viewController(at: selectedIndex) {
             pageController.setViewControllers([viewController], direction: .forward, animated: false, completion: nil)

@@ -2,20 +2,17 @@
 //  SCFileToDownload.swift
 //  SCSwift
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import UIKit
 
-public class SCFileToDownload : NSObject {
-    
+public struct SCFileToDownload {
     public var remoteStringUrl: String = ""
     public var localUrl: URL?
     
-    public convenience init(remoteStringUrl: String, localUrl: URL) {
-        self.init()
-        
+    public init(remoteStringUrl: String, localUrl: URL) {
         self.remoteStringUrl = remoteStringUrl
         self.localUrl = localUrl
     }

@@ -2,15 +2,15 @@
 //  SCUIImageExtension.swift
 //  SCSwift
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import Foundation
 
 public extension UIImage {
     
-    public func resize(percentage: CGFloat) -> UIImage? {
+    func resize(percentage: CGFloat) -> UIImage? {
         
         guard let cgImage = self.cgImage else {
             return nil
@@ -37,7 +37,7 @@ public extension UIImage {
         }
     }
     
-    public func fixOrientation() -> UIImage {
+    func fixOrientation() -> UIImage {
         
         if self.imageOrientation == UIImage.Orientation.up {
             return self
@@ -46,20 +46,19 @@ public extension UIImage {
         var transform = CGAffineTransform.identity
         
         switch self.imageOrientation {
-        case .down, .downMirrored:
-            transform = transform.translatedBy(x: self.size.width, y: self.size.height)
-            transform = transform.rotated(by: CGFloat(Double.pi));
-            
-        case .left, .leftMirrored:
-            transform = transform.translatedBy(x: self.size.width, y: 0);
-            transform = transform.rotated(by: CGFloat(Double.pi/2));
-            
-        case .right, .rightMirrored:
-            transform = transform.translatedBy(x: 0, y: self.size.height);
-            transform = transform.rotated(by: CGFloat(-(Double.pi/2)));
-            
-        case .up, .upMirrored:
-            break
+            case .down, .downMirrored:
+                transform = transform.translatedBy(x: self.size.width, y: self.size.height)
+                transform = transform.rotated(by: CGFloat(Double.pi))
+                break
+            case .left, .leftMirrored:
+                transform = transform.translatedBy(x: self.size.width, y: 0)
+                transform = transform.rotated(by: CGFloat(Double.pi/2))
+                break
+            case .right, .rightMirrored:
+                transform = transform.translatedBy(x: 0, y: self.size.height)
+                transform = transform.rotated(by: CGFloat(-(Double.pi/2)))
+                break
+            default: break
         }
         
         switch self.imageOrientation {
@@ -112,22 +111,23 @@ public extension UIImage {
         return img;
     }
     
-    public func flipped() -> UIImage {
+    func flipped() -> UIImage {
         var imageOrientation: UIImage.Orientation?
         switch(self.imageOrientation){
-        case .down: imageOrientation = .downMirrored; break
-        case .downMirrored: imageOrientation = .down; break
-        case .left: imageOrientation = .leftMirrored; break
-        case .leftMirrored: imageOrientation = .left; break
-        case .right: imageOrientation = .rightMirrored; break
-        case .rightMirrored: imageOrientation = .right; break
-        case .up: imageOrientation = .upMirrored; break
-        case .upMirrored: imageOrientation = .up; break
+            case .down: imageOrientation = .downMirrored; break
+            case .downMirrored: imageOrientation = .down; break
+            case .left: imageOrientation = .leftMirrored; break
+            case .leftMirrored: imageOrientation = .left; break
+            case .right: imageOrientation = .rightMirrored; break
+            case .rightMirrored: imageOrientation = .right; break
+            case .up: imageOrientation = .upMirrored; break
+            case .upMirrored: imageOrientation = .up; break
+            default: break
         }
         return UIImage(cgImage: self.cgImage!, scale: self.scale, orientation: imageOrientation!)
     }
     
-    public func mergeTop(bottomImage: UIImage) -> UIImage? {
+    func mergeTop(bottomImage: UIImage) -> UIImage? {
         
         UIGraphicsBeginImageContextWithOptions(self.size, false, 0.0)
         self.draw(in: CGRect(x: 0, y: 0, width: self.size.width, height: bottomImage.size.height))
@@ -141,7 +141,7 @@ public extension UIImage {
         return nil
     }
     
-    public class func maskImage(image: UIImage, withMask maskImage: UIImage) -> UIImage {
+    class func maskImage(image: UIImage, withMask maskImage: UIImage) -> UIImage {
         
         let maskRef = maskImage.cgImage
         
@@ -160,7 +160,7 @@ public extension UIImage {
         return maskedImage
     }
     
-    public func paint(with color: UIColor) -> UIImage {
+    func paint(with color: UIColor) -> UIImage {
         
         UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
         color.setFill()

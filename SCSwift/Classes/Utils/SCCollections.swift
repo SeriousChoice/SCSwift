@@ -1,49 +1,36 @@
 //
-//  SCCollections.swift
+//  SCTableSection.swift
 //  SCSwift
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import Foundation
 
-public class SCTableSection : NSObject {
-    
-    public var key: String = ""
+public struct SCTableSection {
+    public var key: String
     public var title: String?
-    public var rows = [SCTableRow]()
-    
-    public convenience init(key: String, title: String?, rows: [SCTableRow]) {
-        self.init()
-        
-        self.key = key
-        self.title = title
-        self.rows = rows
-    }
+    public var rows: [SCTableRow]
 }
 
-public class SCTableRow : NSObject {
-    
-    public var key: String = ""
+public struct SCTableRow {
+    public var key: String
     public var title: String?
     public var subtitle: String?
     public var value: String?
     public var image: UIImage?
-    public var accessoryType: UITableViewCell.AccessoryType = .none
+    public var accessoryType: UITableViewCell.AccessoryType
     
-    public convenience init(key: String, title: String?, subtitle: String?, value: String) {
-        self.init()
-        
+    public init(key: String, title: String?, subtitle: String?, value: String) {
         self.key = key
         self.title = title
         self.subtitle = subtitle
         self.value = value
+        self.accessoryType = .none
     }
     
-    public convenience init(key: String, title: String?, value: String?, image: UIImage?, accessoryType: UITableViewCell.AccessoryType) {
-        self.init()
-        
+    public init(key: String, title: String?, value: String?, image: UIImage?, accessoryType: UITableViewCell.AccessoryType) {
         self.key = key
         self.title = title
         self.value = value
@@ -51,9 +38,7 @@ public class SCTableRow : NSObject {
         self.accessoryType = accessoryType
     }
     
-    public convenience init(key: String, title: String?, value: String?, accessoryType: UITableViewCell.AccessoryType) {
-        self.init()
-        
+    public init(key: String, title: String?, value: String?, accessoryType: UITableViewCell.AccessoryType) {
         self.key = key
         self.title = title
         self.value = value

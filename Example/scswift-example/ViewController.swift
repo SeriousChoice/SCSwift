@@ -2,8 +2,8 @@
 //  ViewController.swift
 //  SCSwiftExample
 //
-//  Created by Nicola Innocenti on 28/05/17.
-//  Copyright © 2017 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import UIKit
@@ -11,13 +11,21 @@ import SCSwift
 
 class ViewController: UIViewController {
     
+    @IBOutlet weak var btnImagePicker: UIButton!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
+        view.backgroundColor = .systemGroupedBackground
         
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Left", style: .plain, target: self, action: #selector(self.didTapLeftButton))
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Right", style: .plain, target: self, action: #selector(self.didTapRightButton))
+        
+        btnImagePicker.observe(event: .touchUpInside) {
+            SCImagePicker.shared.pickWithActionSheet(in: self, mediaType: .photo, fileExtension: .png, maxSize: nil, editing: false, iPadStartFrame: nil, completionBlock: { (image, videoUrl, fileName) in
+                print("Image: \(image != nil)\nVideo: \(videoUrl != nil)")
+            }, errorBlock: nil)
+        }
     }
 
 	@objc func didTapLeftButton() {
@@ -26,13 +34,6 @@ class ViewController: UIViewController {
     
    @objc func didTapRightButton() {
         self.openRightDrawerView()
-    }
-
-    @IBAction func didTapPickerButton(_ sender: Any) {
-        
-        SCImagePicker.shared.pickWithActionSheet(in: self, mediaType: .photo, editing: false, iPadStartFrame: nil, completionBlock: { (image, videoUrl, fileName) in
-            print("Image: \(image != nil)\nVideo: \(videoUrl != nil)")
-        }, errorBlock: nil)
     }
     
     @IBAction func didTapMediaPlayerButton(_ sender: Any) {
@@ -85,32 +86,49 @@ class ViewController: UIViewController {
     @IBAction func didTapFormButton(_ sender: Any) {
         
         let viewController = SCFormViewController()
+        viewController.tintColor = .red
         
         viewController.data = [
             SCFormSection(id: nil, title: "Standard", subtitle: nil, value: nil, rows: [
-                SCFormRow(id: nil, key: nil, title: "Title 1-1", subtitle: nil, value: "Value 1-1", placeholder: nil, image: nil, extraData: nil, dateFormat: nil, accessoryType: .none, mandatory: false, type: .rowDefault),
-                SCFormRow(id: nil, key: nil, title: "Title 1-2", subtitle: nil, value: "Value 1-2", placeholder: nil, image: nil, extraData: nil, dateFormat: nil, accessoryType: .none, mandatory: false, type: .rowDefault)
-                ]),
+                SCFormRow(default: "standard_1", title: "Title 1-1", value: "Value 1-1", visibilityBindKey: "list_2"),
+                SCFormRow(default: "standard_2", title: "Title 1-2", value: "Value 1-2", visibilityBindKey: nil)
+            ]),
             SCFormSection(id: nil, title: "TextField", subtitle: nil, value: nil, rows: [
-                SCFormRow(id: nil, key: nil, title: "Title 2-1", subtitle: nil, value: "Value 2-1", placeholder: nil, image: nil, extraData: nil, dateFormat: nil, accessoryType: .none, mandatory: false, type: .rowTextField),
-                SCFormRow(id: nil, key: nil, title: "Title 2-2", subtitle: nil, value: "Value 2-2", placeholder: "Placeholder", image: nil, extraData: nil, dateFormat: nil, accessoryType: .none, mandatory: false, type: .rowTextField)
-                ]),
+                SCFormRow(textField: "textfield_1", title: "Title 2-1", placeholder: nil, value: nil, visibilityBindKey: nil),
+                SCFormRow(textField: "textfield_2", title: "Title 2-2", placeholder: nil, value: nil, visibilityBindKey: nil)
+            ]),
+            SCFormSection(id: nil, title: "TextArea", subtitle: nil, value: nil, rows: [
+                SCFormRow(textArea: "textarea_1", title: "Title 3-1", placeholder: nil, value: nil, visibilityBindKey: nil),
+                SCFormRow(textArea: "textarea_2", title: "Title 3-2", placeholder: nil, value: nil, visibilityBindKey: nil)
+            ]),
             SCFormSection(id: nil, title: "Subtitle", subtitle: nil, value: nil, rows: [
-                SCFormRow(id: nil, key: nil, title: "Title 3-1", subtitle: "Subtitle 3-1", value: nil, placeholder: nil, image: nil, extraData: nil, dateFormat: nil, accessoryType: .none, mandatory: false, type: .rowSubtitle),
-                SCFormRow(id: nil, key: nil, title: "Title 3-2", subtitle: "Subtitle 3-2", value: nil, placeholder: nil, image: nil, extraData: nil, dateFormat: nil, accessoryType: .none, mandatory: false, type: .rowSubtitle)
-                ]),
+                SCFormRow(subtitle: "subtitle_1", title: "Title 4-1", subtitle: "Subtitle 3-1", visibilityBindKey: "textfield_1"),
+                SCFormRow(subtitle: "subtitle_2", title: "Title 4-2", subtitle: "Subtitle 3-2", visibilityBindKey: nil)
+            ]),
             SCFormSection(id: nil, title: "Switch", subtitle: nil, value: nil, rows: [
-                SCFormRow(id: nil, key: nil, title: "Title 4-1", subtitle: nil, value: true, placeholder: nil, image: nil, extraData: nil, dateFormat: nil, accessoryType: .none, mandatory: false, type: .rowSwitch),
-                SCFormRow(id: nil, key: nil, title: "Title 4-2", subtitle: nil, value: false, placeholder: nil, image: nil, extraData: nil, dateFormat: nil, accessoryType: .none, mandatory: false, type: .rowSwitch)
-                ]),
+                SCFormRow(switch: "switch_1", title: "Titleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee 5-1", value: false, visibilityBindKey: nil),
+                SCFormRow(switch: "switch_2", title: "Titleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee 5-2", value: false, visibilityBindKey: nil)
+            ]),
             SCFormSection(id: nil, title: "Date", subtitle: nil, value: nil, rows: [
-                SCFormRow(id: nil, key: nil, title: "Title 5-1", subtitle: nil, value: nil, placeholder: nil, image: nil, extraData: nil, dateFormat: "dd/MM/yyyy", accessoryType: .none, mandatory: false, type: .rowDate),
-                SCFormRow(id: nil, key: nil, title: "Title 5-2", subtitle: nil, value: nil, placeholder: nil, image: nil, extraData: nil, dateFormat: "HH:mm:ss", accessoryType: .none, mandatory: false, type: .rowDate)
-                ]),
+                SCFormRow(date: "date_1", title: "Title 6-1", placeholder: nil, dateFormat: "dd/MM/YYYY", value: nil, visibilityBindKey: nil),
+                SCFormRow(date: "date_2", title: "Title 6-2", placeholder: nil, dateFormat: "HH:mm", value: nil, visibilityBindKey: "switch_1")
+            ]),
             SCFormSection(id: nil, title: "List", subtitle: nil, value: nil, rows: [
-                SCFormRow(id: nil, key: nil, title: "Title 6-1", subtitle: nil, value: nil, placeholder: nil, image: nil, extraData: ["A", "B", "C"], dateFormat: nil, accessoryType: .none, mandatory: false, type: .rowList),
-                SCFormRow(id: nil, key: nil, title: "Title 6-2", subtitle: nil, value: "1", placeholder: nil, image: nil, extraData: ["1", "2", "3"], dateFormat: nil, accessoryType: .none, mandatory: false, type: .rowList)
-                ])
+                SCFormRow(list: "list_1", title: "Title 7-1", value: nil, extraData: [
+                    SCDataListItem(key: nil, title: "A", subtitle: nil, selected: false),
+                    SCDataListItem(key: nil, title: "B", subtitle: nil, selected: false),
+                    SCDataListItem(key: nil, title: "C", subtitle: nil, selected: false)
+                ], visibilityBindKey: nil),
+                SCFormRow(listMulti: "list_2", title: "Title 7-2", value: nil, extraData: [
+                    SCDataListItem(key: nil, title: "1", subtitle: nil, selected: false),
+                    SCDataListItem(key: nil, title: "2", subtitle: nil, selected: false),
+                    SCDataListItem(key: nil, title: "3", subtitle: nil, selected: false)
+                ], visibilityBindKey: nil)
+            ]),
+            SCFormSection(id: nil, title: "Attachment", subtitle: nil, value: nil, rows: [
+                SCFormRow(attachment: "attachment_1", title: "Title 7-1", value: nil, attachmentUrl: nil, maxSize: nil, visibilityBindKey: nil),
+                SCFormRow(attachment: "attachment_2", title: "Title 7-2", value: nil, attachmentUrl: nil, maxSize: nil, visibilityBindKey: nil)
+            ])
         ]
         navigationController?.pushViewController(viewController, animated: true)
     }
@@ -120,6 +138,41 @@ class ViewController: UIViewController {
         let chat = SCChatViewController()
         chat.playButtonImage = "ico_play.png".image
         navigationController?.pushViewController(chat, animated: true)
+    }
+    
+    @IBAction func didTapBottomMenu(_ sender: Any) {
+        
+        let menu = SCBottomMenu(data: [
+            SCBottomMenuSection(key: "section1", title: "Section 1", items: [
+                SCBottomMenuItem(key: "item1", title: "Item 1", image: nil, action: {
+                    print("Pressed Item 1")
+                }),
+                SCBottomMenuItem(key: "item2", title: "Item 2", image: nil, action: {
+                    print("Pressed Item 2")
+                }),
+                SCBottomMenuItem(key: "item3", title: "Item 3", image: nil, action: {
+                    print("Pressed Item 3")
+                })
+            ]),
+            SCBottomMenuSection(key: "section2", title: "Section 2", items: [
+                SCBottomMenuItem(key: "item4", title: "Item 4", image: nil, action: {
+                    print("Pressed Item 4")
+                }),
+                SCBottomMenuItem(key: "item5", title: "Item 5", image: nil, action: {
+                    print("Pressed Item 5")
+                })
+            ])
+        ])
+        menu.transitioningDelegate = self
+        present(menu, animated: true, completion: nil)
+    }
+    
+    @IBAction func didTapFilePickerButton(_ sender: Any) {
+        
+        let picker = SCFilePicker()
+        picker.pickFile(on: self, fileExtensions: [.png, .jpg], maxSize: nil) { (fileUrl, message) in
+
+        }
     }
     
     override func didReceiveMemoryWarning() {

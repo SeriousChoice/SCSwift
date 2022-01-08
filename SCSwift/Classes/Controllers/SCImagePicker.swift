@@ -2,8 +2,8 @@
 //  SCImagePickerController.swift
 //  SCSwiftExample
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import UIKit
@@ -39,8 +39,30 @@ public class SCImagePicker: NSObject, UIImagePickerControllerDelegate, UINavigat
     
     private var completionBlock: SCImagePickerCompletionBlock!
     private var errorBlock: SCImagePickerErrorBlock?
+    private var currentFileExtension = SCFileExtension.jpg
+    private var currentMaxSize: Int?  //Bytes
     
     private var picker: UIImagePickerController!
+    private var lastCacheUpdate: TimeInterval = 0
+    
+    public var cacheClearInterval : TimeInterval {
+        
+        set {
+            UserDefaults.standard.set(newValue, forKey: "SCImagePickerClearCacheInterval")
+            UserDefaults.standard.synchronize()
+        }
+        get {
+            let currentValue = UserDefaults.standard.double(forKey: "SCImagePickerClearCacheInterval")
+            return currentValue > 0 ? currentValue : 604800
+        }
+    }
+    
+    var cacheFolder : URL {
+        
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        let documentsDirectory = paths[0]
+        return documentsDirectory.appendingPathComponent("SCImagePickerCache")
+    }
     
     public override init() {
         super.init()
@@ -69,7 +91,7 @@ public class SCImagePicker: NSObject, UIImagePickerControllerDelegate, UINavigat
         set (newValue) { UserDefaults.standard.set(newValue, forKey: SCImagePicker.SCImagePickerCancelString) }
     }
     
-    public func pickWithActionSheet(in viewController: UIViewController, mediaType: SCMediaType, editing: Bool, iPadStartFrame: CGRect?, completionBlock: @escaping SCImagePickerCompletionBlock, errorBlock: SCImagePickerErrorBlock?) {
+    public func pickWithActionSheet(in viewController: UIViewController, mediaType: SCMediaType, fileExtension: SCFileExtension, maxSize: Int?, editing: Bool, iPadStartFrame: CGRect?, completionBlock: @escaping SCImagePickerCompletionBlock, errorBlock: SCImagePickerErrorBlock?) {
         
         if UIImagePickerController.isSourceTypeAvailable(.camera) && UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
             
@@ -85,11 +107,11 @@ public class SCImagePicker: NSObject, UIImagePickerControllerDelegate, UINavigat
             
             alert.addAction(UIAlertAction(title: self.photoCameraText, style: .default, handler: { (action) in
                 let pickerType: SCImagePickerType = mediaType == .photo ? .photoCamera : mediaType == .video ? .videoCamera : .photoAndVideoCamera
-                self.pick(in: viewController, type: pickerType, editing: editing, completionBlock: completionBlock, errorBlock: errorBlock)
+                self.pick(in: viewController, type: pickerType, fileExtension: fileExtension, maxSize: maxSize, editing: editing, completionBlock: completionBlock, errorBlock: errorBlock)
             }))
             alert.addAction(UIAlertAction(title: self.cameraRollText, style: .default, handler: { (action) in
                 let pickerType: SCImagePickerType = mediaType == .photo ? .photoLibrary : mediaType == .video ? .videoLibrary : .photoAndVideoLibrary
-                self.pick(in: viewController, type: pickerType, editing: editing, completionBlock: completionBlock, errorBlock: errorBlock)
+                self.pick(in: viewController, type: pickerType, fileExtension: fileExtension, maxSize: maxSize, editing: editing, completionBlock: completionBlock, errorBlock: errorBlock)
             }))
             alert.addAction(UIAlertAction(title: self.cancelText, style: .cancel, handler: nil))
             viewController.present(alert, animated: true, completion: nil)
@@ -97,19 +119,21 @@ public class SCImagePicker: NSObject, UIImagePickerControllerDelegate, UINavigat
         } else if UIImagePickerController.isSourceTypeAvailable(.camera) {
             
             let pickerType: SCImagePickerType = mediaType == .photo ? .photoCamera : mediaType == .video ? .videoCamera : .photoAndVideoCamera
-            self.pick(in: viewController, type: pickerType, editing: editing, completionBlock: completionBlock, errorBlock: errorBlock)
+            self.pick(in: viewController, type: pickerType, fileExtension: fileExtension, maxSize: maxSize, editing: editing, completionBlock: completionBlock, errorBlock: errorBlock)
             
         } else if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
             
             let pickerType: SCImagePickerType = mediaType == .photo ? .photoLibrary : mediaType == .video ? .videoLibrary : .photoAndVideoLibrary
-            self.pick(in: viewController, type: pickerType, editing: editing, completionBlock: completionBlock, errorBlock: errorBlock)
+            self.pick(in: viewController, type: pickerType, fileExtension: fileExtension, maxSize: maxSize, editing: editing, completionBlock: completionBlock, errorBlock: errorBlock)
         }
     }
     
-    public func pick(in viewController: UIViewController, type: SCImagePickerType, editing: Bool, completionBlock: @escaping SCImagePickerCompletionBlock, errorBlock: SCImagePickerErrorBlock?) {
+    public func pick(in viewController: UIViewController, type: SCImagePickerType, fileExtension: SCFileExtension, maxSize: Int?, editing: Bool, completionBlock: @escaping SCImagePickerCompletionBlock, errorBlock: SCImagePickerErrorBlock?) {
         
         self.completionBlock = completionBlock
         self.errorBlock = errorBlock
+        self.currentFileExtension = fileExtension
+        self.currentMaxSize = maxSize
         
         let isLibrary = type == .photoLibrary || type == .videoLibrary || type == .photoAndVideoLibrary
         let isPhoto = type == .photoLibrary || type == .photoCamera || type == .photoAndVideoLibrary || type == .photoAndVideoCamera
@@ -126,12 +150,42 @@ public class SCImagePicker: NSObject, UIImagePickerControllerDelegate, UINavigat
         picker.allowsEditing = editing
         picker.sourceType = sourceType
         picker.mediaTypes = mediaTypes
-        
         if isLibrary == false {
             picker.cameraCaptureMode = isPhoto ? .photo : .video
         }
         
-        viewController.present(picker, animated: true, completion: nil)
+        if isLibrary {
+            let photos = PHPhotoLibrary.authorizationStatus()
+            if photos == .notDetermined {
+                PHPhotoLibrary.requestAuthorization({status in
+                    if status == .authorized {
+                        DispatchQueue.main.async {
+                            viewController.present(self.picker, animated: true, completion: nil)
+                        }
+                    } else {
+                        if self.errorBlock != nil {
+                            self.errorBlock!("Photo library permissions are disabled")
+                        }
+                    }
+                })
+            } else if photos == .authorized {
+                DispatchQueue.main.async {
+                    viewController.present(self.picker, animated: true, completion: nil)
+                }
+            }
+        } else {
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                if granted {
+                    DispatchQueue.main.async {
+                        viewController.present(self.picker, animated: true, completion: nil)
+                    }
+                } else {
+                    if self.errorBlock != nil {
+                        self.errorBlock!("Camera permissions are disabled")
+                    }
+                }
+            }
+        }
     }
     
     private func mediaTypesFor(sourceType: UIImagePickerController.SourceType, photo: Bool, video: Bool) -> [String]? {
@@ -160,59 +214,90 @@ public class SCImagePicker: NSObject, UIImagePickerControllerDelegate, UINavigat
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
         var image: UIImage?
-        var videoUrl: URL?
         var fileUrl: URL?
-        var fileName: String = ""
+        let fileName: String = "file"
         
         if (info[.mediaType] as! String) == (kUTTypeImage as String) {
             
-            if let pickedImage = info[.originalImage] as? UIImage {
-                if let imageUrl = info[.referenceURL] as? URL {
+            if let pickedImage = info[.editedImage] as? UIImage {
+                image = pickedImage
+            } else if let pickedImage = info[.originalImage] as? UIImage {
+                image = pickedImage
+            }
+            if let image = image {
+                if let imageUrl = saveImageToLocalFolder(image: image) {
                     fileUrl = imageUrl
                 }
-                image = pickedImage
             }
             
         } else if (info[.mediaType] as! String) == (kUTTypeMovie as String) {
             
             if let pickedVideoUrl = info[.mediaURL] as? URL {
                 fileUrl = pickedVideoUrl
-                videoUrl = pickedVideoUrl
             }
         }
         
-        if let fileUrl = fileUrl {
-            PHPhotoLibrary.requestAuthorization { (status) in
-                if status == .authorized {
-                    if let asset = PHAsset.fetchAssets(withALAssetURLs: [fileUrl], options: nil).firstObject {
-                        PHImageManager.default().requestImageData(for: asset, options: nil, resultHandler: { _, _, _, info in
-                            if let url = info!["PHImageFileURLKey"] as? URL {
-                                fileName = url.lastPathComponent
-                            }
-                            self.completionBlock(image, videoUrl, fileName)
-                            picker.dismiss(animated: true, completion: nil)
-                        })
-                    } else {
-                        self.completionBlock(image, videoUrl, fileName)
-                        picker.dismiss(animated: true, completion: nil)
-                    }
-                } else {
-                    self.completionBlock(image, videoUrl, fileName)
-                    picker.dismiss(animated: true, completion: nil)
-                }
-            }
-        } else {
-            self.completionBlock(image, videoUrl, fileName)
-            picker.dismiss(animated: true, completion: nil)
+        if let fileUrl = fileUrl, let data = try? Data(contentsOf: fileUrl), let maxSize = currentMaxSize, maxSize < data.count {
+            completionBlock(image, fileUrl, "File too big")
+            return
         }
-    }
-    
-    public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
-        
+        completionBlock(image, fileUrl, fileName)
+        picker.dismiss(animated: true, completion: nil)
     }
     
     public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
+    }
+    
+    // MARK: - Other Methods
+    
+    public func clearCacheIfNeeded() {
+        
+        let currentTimeInterval = Date().timeIntervalSince1970
+        if currentTimeInterval - lastCacheUpdate > cacheClearInterval {
+            do {
+                try FileManager.default.removeItem(at: cacheFolder)
+            } catch {
+                print("[SCImagePicker] Error: " + error.localizedDescription)
+            }
+        }
+    }
+    
+    private func saveImageToLocalFolder(image: UIImage?) -> URL? {
+        
+        clearCacheIfNeeded()
+        
+        guard let image = image else { return nil }
+        
+        let cacheFolder = self.cacheFolder
+        let manager = FileManager.default
+        
+        var isDir: ObjCBool = false
+        if !manager.fileExists(atPath: cacheFolder.absoluteString, isDirectory: &isDir) {
+            do {
+                try manager.createDirectory(at: cacheFolder, withIntermediateDirectories: false, attributes: nil)
+            } catch {
+                print("[SCImagePicker] Error: " + error.localizedDescription)
+            }
+        }
+        
+        var fileDir: URL!
+        var data: Data?
+        if currentFileExtension == .png {
+            data = image.pngData()
+            fileDir = cacheFolder.appendingPathComponent("\(UUID().uuidString).png")
+        } else {
+            data = image.jpegData(compressionQuality: 1.0)
+            fileDir = cacheFolder.appendingPathComponent("\(UUID().uuidString).jpg")
+        }
+        do {
+            try data?.write(to: fileDir)
+            lastCacheUpdate = Date().timeIntervalSince1970
+        } catch {
+            print("[SCImagePicker] Error: " + error.localizedDescription)
+        }
+        
+        return fileDir
     }
 }

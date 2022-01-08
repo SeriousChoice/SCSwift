@@ -2,13 +2,14 @@
 //  SCVideoViewController.swift
 //  SCSwiftExample
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import UIKit
 import AVFoundation
 import AVKit
+import PureLayout
 
 public enum VideoAspect: Int {
     case resizeAspectFill = 1
@@ -16,7 +17,7 @@ public enum VideoAspect: Int {
     case resize = 3
 }
 
-public protocol SCVideoViewControllerDelegate : class {
+public protocol SCVideoViewControllerDelegate : AnyObject {
     func videoReadyToPlay()
     func videoDidPlay()
     func videoDidPause()
@@ -30,9 +31,22 @@ open class SCVideoViewController: SCMediaViewController, SCMediaPlayerViewContro
     
     // MARK: - Xibs
     
-    private var videoView: UIView!
-    private var imgPlaceholder: UIImageView!
-    private var spinner: UIActivityIndicatorView!
+    private var videoView: UIView = {
+        let view = UIView()
+        return view
+    }()
+    private var imgPlaceholder: UIImageView = {
+        let image = UIImageView()
+        image.contentMode = .scaleAspectFit
+        image.clipsToBounds = true
+        return image
+    }()
+    private var spinner: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.color = .lightGray
+        indicator.hidesWhenStopped = true
+        return indicator
+    }()
     
     // MARK: - Constants & Variables
     
@@ -66,20 +80,20 @@ open class SCVideoViewController: SCMediaViewController, SCMediaPlayerViewContro
         super.viewDidLoad()
         
         view.backgroundColor = .clear
-        
-        videoView = UIView(frame: view.frame)
+        setupLayout()
+    }
+    
+    private func setupLayout() {
         view.addSubview(videoView)
+        videoView.autoPinEdgesToSuperviewEdges()
         
-        imgPlaceholder = UIImageView(frame: videoView.frame)
         videoView.addSubview(imgPlaceholder)
+        imgPlaceholder.autoPinEdgesToSuperviewEdges()
         
-        spinner = UIActivityIndicatorView(style: .whiteLarge)
-        spinner.color = .lightGray
-        spinner.center = videoView.center
+        videoView.addSubview(spinner)
+        spinner.autoAlignAxis(toSuperviewAxis: .horizontal)
+        spinner.autoAlignAxis(toSuperviewAxis: .vertical)
         spinner.startAnimating()
-        videoView.addSubview(imgPlaceholder)
-        
-        spinner.hidesWhenStopped = true
     }
     
     open override func viewWillAppear(_ animated: Bool) {
@@ -105,9 +119,6 @@ open class SCVideoViewController: SCMediaViewController, SCMediaPlayerViewContro
     override open func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        videoView.frame = view.frame
-        imgPlaceholder.frame = videoView.frame
-        spinner.center = videoView.center
         playerLayer?.frame = videoView.frame
         /*
          if UIDevice.isPortrait {
@@ -117,10 +128,10 @@ open class SCVideoViewController: SCMediaViewController, SCMediaPlayerViewContro
          }*/
         videoAspect = .resizeAspect
         
-        switch(videoAspect){
-        case .resizeAspectFill: playerLayer?.videoGravity = .resizeAspectFill
-        case .resizeAspect: playerLayer?.videoGravity = .resizeAspect
-        case .resize: playerLayer?.videoGravity = .resize
+        switch(videoAspect) {
+            case .resizeAspectFill: playerLayer?.videoGravity = .resizeAspectFill
+            case .resizeAspect: playerLayer?.videoGravity = .resizeAspect
+            case .resize: playerLayer?.videoGravity = .resize
         }
     }
     
@@ -272,9 +283,7 @@ open class SCVideoViewController: SCMediaViewController, SCMediaPlayerViewContro
     // MARK: - Other Methods
     
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        
         if (object as? AVPlayer) == player {
-            
             if keyPath == "status" {
                 if player?.status == .readyToPlay {
                     let playable = player?.currentItem?.asset.isPlayable

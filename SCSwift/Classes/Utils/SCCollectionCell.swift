@@ -2,21 +2,21 @@
 //  SCCollectionCell.swift
 //  SCSwiftExample
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import Foundation
 
-public protocol SCCollectionCellDelegate : class {
-    func SCCollectionCellDidPress(cell: UICollectionViewCell)
+public protocol SCCollectionCellDelegate : AnyObject {
+    func scCollectionCellDidPress(cell: UICollectionViewCell)
 }
 
 open class SCCollectionCell : UICollectionViewCell, UIGestureRecognizerDelegate {
     
     // MARK: - Constants & Variables
     
-    public weak var SCDelegate: SCCollectionCellDelegate?
+    public weak var scDelegate: SCCollectionCellDelegate?
     private var animationDuration: TimeInterval = 0.0
     public var pressGesture: UILongPressGestureRecognizer?
     
@@ -55,7 +55,7 @@ open class SCCollectionCell : UICollectionViewCell, UIGestureRecognizerDelegate 
                     self.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
                 })
                 if (location.x > 0 && location.x < frame.size.width) && (location.y > 0 && location.y < frame.size.height) {
-                    SCDelegate?.SCCollectionCellDidPress(cell: self)
+                    scDelegate?.scCollectionCellDidPress(cell: self)
                 }
             }
         }

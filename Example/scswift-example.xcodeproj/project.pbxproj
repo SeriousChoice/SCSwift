@@ -3,23 +3,20 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		7CF1A7386DFD585968DF1333 /* Pods_scswift_exampleTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C60B334B4867FD52F1F625E /* Pods_scswift_exampleTests.framework */; };
 		9794CDDB7D6C7175D5897481 /* Pods_scswift_exampleUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E567156658B8F0DEA9E2124 /* Pods_scswift_exampleUITests.framework */; };
 		D4FF3189EE727273D3061A4C /* Pods_scswift_example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45336AEEA92C1347A561C206 /* Pods_scswift_example.framework */; };
+		EB573FBB2789BCDD0017630F /* SCBottomMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB573FBA2789BCDD0017630F /* SCBottomMenu.swift */; };
 		EB7D6D692185BA98001C8D6E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7D6D682185BA98001C8D6E /* AppDelegate.swift */; };
 		EB7D6D702185BA99001C8D6E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB7D6D6F2185BA99001C8D6E /* Assets.xcassets */; };
 		EB7D6D732185BA99001C8D6E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB7D6D712185BA99001C8D6E /* LaunchScreen.storyboard */; };
 		EB7D6D7E2185BA99001C8D6E /* scswift_exampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7D6D7D2185BA99001C8D6E /* scswift_exampleTests.swift */; };
 		EB7D6D892185BA99001C8D6E /* scswift_exampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7D6D882185BA99001C8D6E /* scswift_exampleUITests.swift */; };
-		EB7D6D9D2185BCF0001C8D6E /* solo_video.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = EB7D6D962185BCF0001C8D6E /* solo_video.mp4 */; };
-		EB7D6D9E2185BCF0001C8D6E /* SCChatMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7D6D972185BCF0001C8D6E /* SCChatMessageCell.swift */; };
-		EB7D6D9F2185BCF0001C8D6E /* SCChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7D6D982185BCF0001C8D6E /* SCChatViewController.swift */; };
 		EB7D6DA12185BCF0001C8D6E /* ico_play.png in Resources */ = {isa = PBXBuildFile; fileRef = EB7D6D9A2185BCF0001C8D6E /* ico_play.png */; };
-		EB7D6DA22185BCF0001C8D6E /* landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB7D6D9B2185BCF0001C8D6E /* landscape.jpg */; };
 		EB7D6DA62185BD75001C8D6E /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EB7D6DA42185BD74001C8D6E /* ViewController.xib */; };
 		EB7D6DA72185BD75001C8D6E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7D6DA52185BD74001C8D6E /* ViewController.swift */; };
 /* End PBXBuildFile section */
@@ -50,6 +47,8 @@
 		5D976F2102228AC06F8130B2 /* Pods-scswift-example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-scswift-example.release.xcconfig"; path = "Pods/Target Support Files/Pods-scswift-example/Pods-scswift-example.release.xcconfig"; sourceTree = "<group>"; };
 		BCE233BEF326D927A48ED116 /* Pods-scswift-exampleUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-scswift-exampleUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-scswift-exampleUITests/Pods-scswift-exampleUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		CDFF8722407C471D9BE1B87A /* Pods-scswift-exampleUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-scswift-exampleUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-scswift-exampleUITests/Pods-scswift-exampleUITests.release.xcconfig"; sourceTree = "<group>"; };
+		EB573FB92789BB490017630F /* SCSwiftExample.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = SCSwiftExample.entitlements; sourceTree = "<group>"; };
+		EB573FBA2789BCDD0017630F /* SCBottomMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCBottomMenu.swift; sourceTree = "<group>"; };
 		EB7D6D652185BA98001C8D6E /* scswift-example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "scswift-example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB7D6D682185BA98001C8D6E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EB7D6D6F2185BA99001C8D6E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -61,11 +60,7 @@
 		EB7D6D842185BA99001C8D6E /* scswift-exampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "scswift-exampleUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB7D6D882185BA99001C8D6E /* scswift_exampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = scswift_exampleUITests.swift; sourceTree = "<group>"; };
 		EB7D6D8A2185BA99001C8D6E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EB7D6D962185BCF0001C8D6E /* solo_video.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = solo_video.mp4; sourceTree = "<group>"; };
-		EB7D6D972185BCF0001C8D6E /* SCChatMessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SCChatMessageCell.swift; sourceTree = "<group>"; };
-		EB7D6D982185BCF0001C8D6E /* SCChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SCChatViewController.swift; sourceTree = "<group>"; };
 		EB7D6D9A2185BCF0001C8D6E /* ico_play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ico_play.png; sourceTree = "<group>"; };
-		EB7D6D9B2185BCF0001C8D6E /* landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = landscape.jpg; sourceTree = "<group>"; };
 		EB7D6DA42185BD74001C8D6E /* ViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ViewController.xib; sourceTree = "<group>"; };
 		EB7D6DA52185BD74001C8D6E /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		F7516216B80A0E3115B69C62 /* Pods-scswift-exampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-scswift-exampleTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-scswift-exampleTests/Pods-scswift-exampleTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -147,17 +142,15 @@
 		EB7D6D672185BA98001C8D6E /* scswift-example */ = {
 			isa = PBXGroup;
 			children = (
+				EB573FB92789BB490017630F /* SCSwiftExample.entitlements */,
 				EB7D6D682185BA98001C8D6E /* AppDelegate.swift */,
 				EB7D6D6F2185BA99001C8D6E /* Assets.xcassets */,
 				EB7D6D712185BA99001C8D6E /* LaunchScreen.storyboard */,
 				EB7D6D742185BA99001C8D6E /* Info.plist */,
 				EB7D6D9A2185BCF0001C8D6E /* ico_play.png */,
-				EB7D6D9B2185BCF0001C8D6E /* landscape.jpg */,
-				EB7D6D972185BCF0001C8D6E /* SCChatMessageCell.swift */,
-				EB7D6D982185BCF0001C8D6E /* SCChatViewController.swift */,
 				EB7D6DA52185BD74001C8D6E /* ViewController.swift */,
 				EB7D6DA42185BD74001C8D6E /* ViewController.xib */,
-				EB7D6D962185BCF0001C8D6E /* solo_video.mp4 */,
+				EB573FBA2789BCDD0017630F /* SCBottomMenu.swift */,
 			);
 			path = "scswift-example";
 			sourceTree = "<group>";
@@ -290,10 +283,8 @@
 			files = (
 				EB7D6D732185BA99001C8D6E /* LaunchScreen.storyboard in Resources */,
 				EB7D6D702185BA99001C8D6E /* Assets.xcassets in Resources */,
-				EB7D6D9D2185BCF0001C8D6E /* solo_video.mp4 in Resources */,
 				EB7D6DA12185BCF0001C8D6E /* ico_play.png in Resources */,
 				EB7D6DA62185BD75001C8D6E /* ViewController.xib in Resources */,
-				EB7D6DA22185BCF0001C8D6E /* landscape.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -342,34 +333,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-scswift-example/Pods-scswift-example-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
-				"${BUILT_PRODUCTS_DIR}/Cache/Cache.framework",
-				"${BUILT_PRODUCTS_DIR}/PureLayout/PureLayout.framework",
-				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
-				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/SCSwift/SCSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework",
-				"${BUILT_PRODUCTS_DIR}/TTTAttributedLabel/TTTAttributedLabel.framework",
+				"${PODS_ROOT}/Target Support Files/Pods-scswift-example/Pods-scswift-example-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-			);
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cache.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PureLayout.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SCSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TTTAttributedLabel.framework",
+				"${PODS_ROOT}/Target Support Files/Pods-scswift-example/Pods-scswift-example-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-scswift-example/Pods-scswift-example-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-scswift-example/Pods-scswift-example-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		56EBC5AAFB7D4711FE5B6D9F /* [CP] Check Pods Manifest.lock */ = {
@@ -424,9 +396,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				EB7D6D692185BA98001C8D6E /* AppDelegate.swift in Sources */,
-				EB7D6D9E2185BCF0001C8D6E /* SCChatMessageCell.swift in Sources */,
+				EB573FBB2789BCDD0017630F /* SCBottomMenu.swift in Sources */,
 				EB7D6DA72185BD75001C8D6E /* ViewController.swift in Sources */,
-				EB7D6D9F2185BCF0001C8D6E /* SCChatViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -597,7 +568,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 65W4F674YP;
 				INFOPLIST_FILE = "scswift-example/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -617,7 +588,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 65W4F674YP;
 				INFOPLIST_FILE = "scswift-example/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

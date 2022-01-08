@@ -2,33 +2,32 @@
 //  SCDrawerController.swift
 //  SCSwiftExample
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import UIKit
 
 public extension UIViewController {
-    
-    public func openLeftDrawerView() {
+    func openLeftDrawerView() {
         if let drawer = UIApplication.shared.windows.first?.rootViewController as? SCDrawerController {
             drawer.openLeftDrawer()
         }
     }
     
-    public func closeLeftDrawerView() {
+    func closeLeftDrawerView() {
         if let drawer = UIApplication.shared.windows.first?.rootViewController as? SCDrawerController {
             drawer.closeLeftDrawer()
         }
     }
     
-    public func openRightDrawerView() {
+    func openRightDrawerView() {
         if let drawer = UIApplication.shared.windows.first?.rootViewController as? SCDrawerController {
             drawer.openRightDrawer()
         }
     }
     
-    public func closeRightDrawerView() {
+    func closeRightDrawerView() {
         if let drawer = UIApplication.shared.windows.first?.rootViewController as? SCDrawerController {
             drawer.closeRightDrawer()
         }

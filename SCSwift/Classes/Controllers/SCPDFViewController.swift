@@ -2,8 +2,8 @@
 //  SCPDFViewController.swift
 //  SCSwiftExample
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import UIKit
@@ -32,55 +32,51 @@ extension FloatingPoint {
 
 class GridPreviewCell : UICollectionViewCell {
     
-    var imgImage: UIImageView?
-    var lblText: UILabel?
+    var imgImage: UIImageView = {
+        let image = UIImageView()
+        image.contentMode = .scaleAspectFill
+        image.clipsToBounds = true
+        return image
+    }()
+    var lblText: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 12)
+        label.textAlignment = .center
+        label.textColor = .white
+        return label
+    }()
     
     func setupLayout() {
-        
         backgroundColor = .clear
         
-        imgImage = UIImageView(frame: CGRect(x: 0, y: 0, width: frame.size.width, height: frame.size.height-15))
-        imgImage!.contentMode = .scaleAspectFill
-        imgImage!.clipsToBounds = true
-        self.addSubview(imgImage!)
-        
-        lblText = UILabel()
-        lblText?.font = UIFont.systemFont(ofSize: 12)
-        lblText?.textAlignment = .center
-        lblText?.textColor = .white
-        self.addSubview(lblText!)
-        
-        imgImage?.autoPinEdge(toSuperviewEdge: .top)
-        imgImage?.autoPinEdge(toSuperviewEdge: .left)
-        imgImage?.autoPinEdge(toSuperviewEdge: .right)
-        imgImage?.autoSetDimension(.height, toSize: frame.size.height-15)
-        lblText?.autoPinEdge(.top, to: .bottom, of: imgImage!)
-        lblText?.autoPinEdge(toSuperviewEdge: .left)
-        lblText?.autoPinEdge(toSuperviewEdge: .right)
-        lblText?.autoPinEdge(toSuperviewEdge: .bottom, withInset: 3)
+        addSubview(imgImage)
+        imgImage.autoPinEdge(toSuperviewEdge: .top)
+        imgImage.autoPinEdge(toSuperviewEdge: .left)
+        imgImage.autoPinEdge(toSuperviewEdge: .right)
+        imgImage.autoSetDimension(.height, toSize: frame.size.height-15)
+
+        addSubview(lblText)
+        lblText.autoPinEdge(.top, to: .bottom, of: imgImage)
+        lblText.autoPinEdge(toSuperviewEdge: .left)
+        lblText.autoPinEdge(toSuperviewEdge: .right)
+        lblText.autoPinEdge(toSuperviewEdge: .bottom, withInset: 3)
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
-        imgImage?.autoSetDimension(.height, toSize: frame.size.height-15)
+        imgImage.autoSetDimension(.height, toSize: frame.size.height-15)
     }
     
     func configure(media: SCMedia, pageNumber: Int) {
-        
-        if imgImage == nil {
-            setupLayout()
-        }
-        
-        imgImage?.image = media.thumbnail
-        lblText?.text = "\(pageNumber)"
+        imgImage.image = media.thumbnail
+        lblText.text = "\(pageNumber)"
     }
 }
 
 
 
 
-public protocol SCPDFViewControllerDelegate : class {
+public protocol SCPDFViewControllerDelegate : AnyObject {
     func pdfDidStartDownload()
     func pdfDidFinishDownload()
     func pdfDidUpdateDownload(progress: Float)
@@ -91,13 +87,51 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
     
     // MARK: - Xibs
     
-    private var pageContainer: UIView!
-    private var pageController: UIPageViewController!
-    private var spinner: UIActivityIndicatorView!
-    private var gridContainer: UIView!
-    private var gridPreview: UICollectionView!
-    private var gridSpinner: UIActivityIndicatorView!
-    private var gridButton: SCButton!
+    private var pageContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        return view
+    }()
+    private var pageController: UIPageViewController = {
+        let page = UIPageViewController(transitionStyle: .pageCurl, navigationOrientation: .horizontal, options: nil)
+        page.view.backgroundColor = .clear
+        return page
+    }()
+    private var spinner: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.color = .lightGray
+        indicator.hidesWhenStopped = true
+        return indicator
+    }()
+    private var gridContainer: UIView = {
+        let view = UIView()
+        view.clipsToBounds = true
+        view.backgroundColor = .darkGray
+        return view
+    }()
+    private var gridPreview: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        let grid = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        grid.isHidden = true
+        grid.backgroundColor = .clear
+        grid.register(GridPreviewCell.self, forCellWithReuseIdentifier: GridPreviewCell.identifier)
+        return grid
+    }()
+    private var gridSpinner: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.color = .white
+        indicator.hidesWhenStopped = true
+        return indicator
+    }()
+    private var gridButton: SCButton = {
+        let button = SCButton()
+        button.setColors(mainBg: .darkGray, highlightedBg: .darkGray, standardTxt: .white, highlightedTxt: .white)
+        button.backgroundColor = .darkGray
+        button.setImage(UIImage(named: "ico_back"), for: .normal)
+        button.imageView?.rotate(by: CGFloat.pi/2)
+        return button
+    }()
     
     // MARK: - Constraints
     
@@ -127,16 +161,16 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
         super.viewDidLoad()
         
         view.backgroundColor = UIColor(netHex: 0xdddddd)
-        
-        pageContainer = UIView(frame: view.frame)
-        pageContainer.backgroundColor = .clear
+        setupLayout()
+        setupPDF()
+    }
+    
+    private func setupLayout() {
         view.insertSubview(pageContainer, at: 0)
         
-        pageController = UIPageViewController(transitionStyle: .pageCurl, navigationOrientation: .horizontal, options: nil)
         pageController.dataSource = self
         pageController.delegate = self
         pageController.view.frame = CGRect(origin: CGPoint(x: 0.0, y: 0.0), size: pageContainer.frame.size)
-        pageController.view.backgroundColor = .clear
         
         let blankController = UIViewController()
         blankController.view.backgroundColor = .clear
@@ -145,14 +179,9 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
         pageContainer.addSubview(pageController.view)
         addChild(pageController)
         
-        spinner = UIActivityIndicatorView(style: .gray)
-        spinner.color = .lightGray
-        spinner.center = view.center
-        spinner.hidesWhenStopped = true
         view.addSubview(spinner)
+        spinner.center = view.center
         spinner.startAnimating()
-        
-        setupPDF()
     }
     
     override open func viewDidLayoutSubviews() {
@@ -221,21 +250,22 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
     }
     
     private func initializePDF(with url: URL) {
-        
         if let data = Cache.shared.object(forKey: url.absoluteString) {
             self.loadPdf(fromData: data)
         } else {
             pdfDelegate?.pdfDidStartDownload()
-            Alamofire.request(url).responseData(completionHandler: { (response) in
-                self.pdfDelegate?.pdfDidFinishDownload()
+            AF.request(url).responseData(completionHandler: { [weak self] (response) in
+                self?.pdfDelegate?.pdfDidFinishDownload()
                 guard let data = response.data, data.count > 0 else {
-                    self.delegate?.mediaDidFailLoad(media: self.media)
+                    if let media = self?.media {
+                        self?.delegate?.mediaDidFailLoad(media: media)
+                    }
                     return
                 }
                 Cache.shared.setObject(data, forKey: url.absoluteString)
-                self.loadPdf(fromData: data)
-            }).downloadProgress { (progress) in
-                self.pdfDelegate?.pdfDidUpdateDownload(progress: Float(progress.fractionCompleted))
+                self?.loadPdf(fromData: data)
+            }).downloadProgress { [weak self] (progress) in
+                self?.pdfDelegate?.pdfDidUpdateDownload(progress: Float(progress.fractionCompleted))
             }
         }
     }
@@ -249,11 +279,13 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
                     self.pages.append(SCMedia())
                 }
                 self.setupGridPreview()
-                self.getImagesFromPDF(at: 0, completion: {
+                self.getImagesFromPDF(at: 0, completion: { [weak self] in
                     DispatchQueue.main.asyncAfter(deadline: .now()+0.1, execute: {
-                        self.spinner.stopAnimating()
-                        if let viewController = self.viewController(at: self.selectedIndex) {
-                            self.pageController.setViewControllers([viewController], direction: .forward, animated: false, completion: nil)
+                        self?.spinner.stopAnimating()
+                        if let index = self?.selectedIndex {
+                            if let viewController = self?.viewController(at: index) {
+                                self?.pageController.setViewControllers([viewController], direction: .forward, animated: false, completion: nil)
+                            }
                         }
                     })
                 })
@@ -267,14 +299,14 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
         
         DispatchQueue.global(qos: .userInitiated).async {
             for i in 1..<(self.pages.count+1) {
-                self.imageFromPDFPage(at: i, thumbnail: true, completion: { (image) in
-                    self.pages[i-1].thumbnail = image
+                self.imageFromPDFPage(at: i, thumbnail: true, completion: { [weak self] (image) in
+                    self?.pages[i-1].thumbnail = image
                     DispatchQueue.main.sync {
-                        self.gridPreview.reloadItems(at: [IndexPath(row: i-1, section: 0)])
+                        self?.gridPreview.reloadItems(at: [IndexPath(row: i-1, section: 0)])
                     }
                     completedImages += 1
-                    if completedImages == self.pages.count {
-                        self.didLoadThumbnails = true
+                    if completedImages == self?.pages.count {
+                        self?.didLoadThumbnails = true
                         completion()
                     }
                 })
@@ -283,7 +315,6 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
     }
     
     private func getImagesFromPDF(at index: Int, completion: @escaping () -> Void) {
-        
         var indexes = [Int]()
         /*if index > 0 {
          if pages[index-1].image == nil {
@@ -314,10 +345,9 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
         var completedImages: Int = 0
         print("PDF INDEXES: \(indexes)")
         DispatchQueue.global(qos: .userInitiated).async {
-            
             for index in indexes {
-                self.imageFromPDFPage(at: index+1, thumbnail: false, completion: { (image) in
-                    self.pages[index].image = image
+                self.imageFromPDFPage(at: index+1, thumbnail: false, completion: { [weak self] (image) in
+                    self?.pages[index].image = image
                     completedImages += 1
                     if completedImages == indexes.count {
                         DispatchQueue.main.sync {
@@ -330,7 +360,6 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
     }
     
     private func imageFromPDFPage(at index: Int, thumbnail: Bool, completion: (UIImage?) -> Void) {
-        
         guard let page = document?.page(at: index) else {
             completion(nil)
             return
@@ -344,7 +373,7 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
             return
         }
         
-        var originalPagerect: CGFloat = 0.0
+        //var originalPagerect: CGFloat = 0.0
         var scalingConstant: CGFloat = 0.0
         var pdfScale: CGFloat = 0.0
         var scaledPageSize: CGSize = .zero
@@ -357,7 +386,6 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
         var xTranslate = originalPageRect.origin.x
         
         if thumbnail {
-            
             scalingConstant = 120
             pdfScale = min(scalingConstant/originalPageRect.width, scalingConstant/originalPageRect.height)
             scaledPageSize = CGSize(width: originalPageRect.width * pdfScale, height: originalPageRect.height * pdfScale)
@@ -365,7 +393,6 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
             xTranslate = originalPageRect.origin.x * pdfScale
             
         } else {
-            
             scalingConstant = originalPageRect.size.width
             pdfScale = 2
             scaledPageSize = CGSize(width: originalPageRect.width*pdfScale, height: originalPageRect.height*pdfScale)
@@ -434,18 +461,14 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
     }
     
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! GridPreviewCell
-        
         cell.configure(media: pages[indexPath.row], pageNumber: indexPath.row+1)
-        
         return cell
     }
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        if let viewController = self.viewController(at: indexPath.row) {
-            self.pageController.setViewControllers([viewController], direction: .forward, animated: false, completion: nil)
+        if let viewController = viewController(at: indexPath.row) {
+            pageController.setViewControllers([viewController], direction: .forward, animated: false, completion: nil)
         }
         collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
     }
@@ -479,10 +502,6 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
             return
         }
         
-        gridContainer = UIView()
-        gridContainer.clipsToBounds = true
-        gridContainer.backgroundColor = .darkGray
-        
         view.addSubview(gridContainer)
         gridContainer.autoPinEdge(.left, to: .left, of: view)
         gridContainer.autoPinEdge(.right, to: .right, of: view)
@@ -491,48 +510,30 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
         cntGridContainerBottom = NSLayoutConstraint(item: gridContainer, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1, constant: 95+UIView.safeArea.bottom)
         view.addConstraint(cntGridContainerBottom)
         
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        
-        gridPreview = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        gridPreview.isHidden = true
-        gridPreview.backgroundColor = .clear
         gridPreview.dataSource = self
         gridPreview.delegate = self
-        gridPreview.register(GridPreviewCell.self, forCellWithReuseIdentifier: cellIdentifier)
         
         gridContainer.addSubview(gridPreview)
-        gridPreview.autoPinEdge(toSuperviewEdge: .left)
-        gridPreview.autoPinEdge(toSuperviewEdge: .right)
-        gridPreview.autoPinEdge(toSuperviewEdge: .top)
+        gridPreview.autoPinEdgesToSuperviewEdges(with: .zero, excludingEdge: .bottom)
         gridPreview.autoSetDimension(.height, toSize: 95)
         
-        gridSpinner = UIActivityIndicatorView(style: .white)
-        gridSpinner.hidesWhenStopped = true
         gridSpinner.startAnimating()
-        
         gridContainer.addSubview(gridSpinner)
         gridSpinner.autoPinEdge(toSuperviewEdge: .top, withInset: 20)
         gridSpinner.autoAlignAxis(toSuperviewAxis: .vertical)
         
-        gridButton = SCButton()
-        gridButton.setColors(mainBg: .darkGray, highlightedBg: .darkGray, standardTxt: .white, highlightedTxt: .white)
-        gridButton.backgroundColor = .darkGray
-        gridButton.setImage(UIImage(named: "ico_back"), for: .normal)
-        gridButton.imageView?.rotate(by: CGFloat.pi/2)
         gridButton.addTarget(self, action: #selector(didTapGridButton), for: .touchUpInside)
-        
         view.addSubview(gridButton)
         gridButton.autoPinEdge(.bottom, to: .top, of: gridContainer)
         gridButton.autoPinEdge(toSuperviewEdge: .right)
         gridButton.autoSetDimensions(to: CGSize(width: 50, height: 35))
         
-        self.getThumbnailsFromPDF {
+        self.getThumbnailsFromPDF { [weak self] in
             DispatchQueue.main.sync {
-                self.gridSpinner.stopAnimating()
-                self.gridPreview.isHidden = false
-                self.gridPreview.collectionViewLayout.invalidateLayout()
-                self.gridPreview.reloadData()
+                self?.gridSpinner.stopAnimating()
+                self?.gridPreview.isHidden = false
+                self?.gridPreview.collectionViewLayout.invalidateLayout()
+                self?.gridPreview.reloadData()
             }
         }
     }
@@ -549,10 +550,12 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
         viewController?.delegate = self
         viewController?.index = index
         
-        getImagesFromPDF(at: index) {
-            for viewController in self.pageController.viewControllers! {
-                if let view = viewController as? SCImageViewController {
-                    view.refresh(media: self.pages[view.index])
+        getImagesFromPDF(at: index) { [weak self] in
+            if let viewControllers = self?.pageController.viewControllers {
+                for viewController in viewControllers {
+                    if let view = viewController as? SCImageViewController, let page = self?.pages[view.index] {
+                        view.refresh(media: page)
+                    }
                 }
             }
         }
@@ -572,7 +575,7 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
     
     public override func didSingleTap(gesture: UITapGestureRecognizer) {
         
-        if gridContainer == nil {
+        if gridContainer.superview == nil {
             didTap()
             return
         }

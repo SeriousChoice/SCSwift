@@ -2,33 +2,35 @@
 //  SCPrimitiveViewController.swift
 //  SCSwiftExample
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import UIKit
 
-open class KeyboardInfo : NSObject {
-    public var beginFrame: CGRect = CGRect.zero
-    public var endFrame: CGRect = CGRect.zero
-    public var animationDuration: Double = 0.0
-    public var animationCurve: UInt = 0
+public struct KeyboardInfo {
+    public var beginFrame: CGRect
+    public var endFrame: CGRect
+    public var animationDuration: Double
+    public var animationCurve: UInt
+}
+
+public extension UserDefaults {
+    enum SCPrimitiveViewControllerKeys {
+        static let backgroundColor = "SCPrimiviteViewControllerBackgroundColor"
+    }
+    
+    @UserDefault(key: SCPrimitiveViewControllerKeys.backgroundColor, defaultValue: 0xf7f7f7)
+    static var primitiveViewControllerBackgroundColor: Int
 }
 
 open class SCPrimitiveViewController: UIViewController {
-    
     open class var rawBackgroundColor : Int {
         get {
-            let colorInt = UserDefaults.standard.integer(forKey: "SCPrimiviteViewControllerBackgroundColor")
-            if colorInt > 0 {
-                return colorInt
-            } else {
-                return 0xf7f7f7
-            }
+            return UserDefaults.primitiveViewControllerBackgroundColor
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: "SCPrimiviteViewControllerBackgroundColor")
-            UserDefaults.standard.synchronize()
+            UserDefaults.primitiveViewControllerBackgroundColor = newValue
         }
     }
     
@@ -126,11 +128,12 @@ open class SCPrimitiveViewController: UIViewController {
         let animationDuration: Double = userInfo.value(forKey: UIResponder.keyboardAnimationDurationUserInfoKey) as! Double
         let animationCurve: UInt = userInfo.value(forKey: UIResponder.keyboardAnimationCurveUserInfoKey) as! UInt
         
-        let keyboardInfo = KeyboardInfo()
-        keyboardInfo.beginFrame = beginFrame
-        keyboardInfo.endFrame = endFrame
-        keyboardInfo.animationDuration = animationDuration
-        keyboardInfo.animationCurve = animationCurve
+        let keyboardInfo = KeyboardInfo(
+            beginFrame: beginFrame,
+            endFrame: endFrame,
+            animationDuration: animationDuration,
+            animationCurve: animationCurve
+        )
         
         return keyboardInfo
     }

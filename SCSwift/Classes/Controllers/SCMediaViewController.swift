@@ -2,13 +2,13 @@
 //  SCMediaViewController.swift
 //  SCSwiftExample
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import UIKit
 
-protocol SCMediaViewControllerDelegate : class {
+protocol SCMediaViewControllerDelegate : AnyObject {
     func mediaDidTapView()
     func mediaDidDoubleTap()
     func mediaDidFailLoad(media: SCMedia)

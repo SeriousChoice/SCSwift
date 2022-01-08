@@ -2,8 +2,8 @@
 //  SCFormViewController.swift
 //  SCSwiftExample
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import UIKit
@@ -11,11 +11,27 @@ import PureLayout
 
 public extension UITableViewCell {
     
-    @objc public func configure(with row: SCFormRow) {
+    @objc func configure(with row: SCFormRow) {
         
-        accessoryType = row.type == .rowList ? .disclosureIndicator : row.accessoryType
+        accessoryType = row.type == .rowList || row.type == .rowListMulti || row.type == .rowAttachment ? .disclosureIndicator : row.accessoryType
         textLabel?.text = row.mandatory ? "\(row.title ?? "")*" : row.title
-        detailTextLabel?.text = row.type == .rowSubtitle ? row.subtitle : row.value as? String
+        if row.type == .rowAttachment {
+            detailTextLabel?.text = row.attachmentUrl != nil ? "File" : ""
+        } else if row.type == .rowList {
+            if let item = row.value as? SCDataListItem {
+                detailTextLabel?.text = item.title
+            } else {
+                detailTextLabel?.text = row.value as? String
+            }
+        } else if row.type == .rowListMulti {
+            if let items = row.value as? [SCDataListItem] {
+                detailTextLabel?.text = items.count > 0 ? "\(items.count) sel." : nil
+            } else {
+                detailTextLabel?.text = row.value as? String
+            }
+        } else {
+            detailTextLabel?.text = row.type == .rowSubtitle ? row.subtitle : row.value as? String
+        }
         imageView?.image = row.image
     }
 }
@@ -24,9 +40,23 @@ public enum SCFormRowType {
     case rowDefault
     case rowSubtitle
     case rowTextField
+    case rowPassword
+    case rowEmail
+    case rowTextArea
     case rowSwitch
     case rowDate
     case rowList
+    case rowListMulti
+    case rowAttachment
+}
+
+public enum SCFormRowValueType {
+    case genericText
+    case integer
+    case decimal
+    case email
+    case url
+    case letters
 }
 
 open class SCFormRow : NSObject {
@@ -42,8 +72,153 @@ open class SCFormRow : NSObject {
     public var extraData: Any?
     public var accessoryType: UITableViewCell.AccessoryType = .none
     public var type: SCFormRowType = .rowDefault
+    public var valueType: SCFormRowValueType = .genericText
+    public var valueRegex: String?
     public var dateFormat: String = ""
+    public var enabled: Bool = true
     public var visible: Bool = true
+    public var visibilityBindKey: String?
+    public var visibilityBindValue: Any?
+    public var extraInfo: String?
+    public var attachmentUrl: URL?
+    public var attachmentExtensions = [SCFileExtension]()
+    public var attachmentMaxSize: Int?    //Byte
+    
+    public convenience init(default key: String?, title: String?, value: String?, visibilityBindKey: String?, visibilityBindValue: Any? = nil) {
+        self.init()
+        
+        self.key = key ?? ""
+        self.title = title
+        self.value = value
+        self.visibilityBindKey = visibilityBindKey
+        self.visibilityBindValue = visibilityBindValue
+        self.visible = visibilityBindKey == nil
+        self.type = .rowDefault
+    }
+    
+    public convenience init(attachment key: String?, title: String?, value: String?, attachmentUrl: URL?, maxSize: Int?, visibilityBindKey: String?, visibilityBindValue: Any? = nil) {
+        self.init()
+        
+        self.key = key ?? ""
+        self.title = title
+        self.value = value
+        self.attachmentMaxSize = maxSize
+        self.visibilityBindKey = visibilityBindKey
+        self.visibilityBindValue = visibilityBindValue
+        self.visible = visibilityBindKey == nil
+        self.type = .rowAttachment
+    }
+    
+    public convenience init(switch key: String?, title: String?, value: Bool, visibilityBindKey: String?, visibilityBindValue: Any? = nil) {
+        self.init()
+        
+        self.key = key ?? ""
+        self.title = title
+        self.value = value
+        self.visibilityBindKey = visibilityBindKey
+        self.visibilityBindValue = visibilityBindValue
+        self.visible = visibilityBindKey == nil
+        self.type = .rowSwitch
+    }
+    
+    public convenience init(date key: String?, title: String?, placeholder: String?, dateFormat: String, value: Date?, visibilityBindKey: String?, visibilityBindValue: Any? = nil) {
+        self.init()
+        
+        self.key = key ?? ""
+        self.title = title
+        self.dateFormat = dateFormat
+        self.value = value
+        self.visibilityBindKey = visibilityBindKey
+        self.visibilityBindValue = visibilityBindValue
+        self.visible = visibilityBindKey == nil
+        self.type = .rowDate
+    }
+    
+    public convenience init(textField key: String?, title: String?, placeholder: String?, value: String?, visibilityBindKey: String?, visibilityBindValue: Any? = nil) {
+        self.init()
+        
+        self.key = key ?? ""
+        self.title = title
+        self.value = value
+        self.visibilityBindKey = visibilityBindKey
+        self.visibilityBindValue = visibilityBindValue
+        self.visible = visibilityBindKey == nil
+        self.type = .rowTextField
+    }
+    
+    public convenience init(password key: String?, title: String?, placeholder: String?, value: String?, visibilityBindKey: String?, visibilityBindValue: Any? = nil) {
+        self.init()
+        
+        self.key = key ?? ""
+        self.title = title
+        self.value = value
+        self.visibilityBindKey = visibilityBindKey
+        self.visibilityBindValue = visibilityBindValue
+        self.visible = visibilityBindKey == nil
+        self.type = .rowPassword
+    }
+    
+    public convenience init(email key: String?, title: String?, placeholder: String?, value: String?, visibilityBindKey: String?, visibilityBindValue: Any? = nil) {
+        self.init()
+        
+        self.key = key ?? ""
+        self.title = title
+        self.value = value
+        self.visibilityBindKey = visibilityBindKey
+        self.visibilityBindValue = visibilityBindValue
+        self.visible = visibilityBindKey == nil
+        self.type = .rowEmail
+    }
+    
+    public convenience init(textArea key: String?, title: String?, placeholder: String?, value: String?, visibilityBindKey: String?, visibilityBindValue: Any? = nil) {
+        self.init()
+        
+        self.key = key ?? ""
+        self.title = title
+        self.value = value
+        self.visibilityBindKey = visibilityBindKey
+        self.visibilityBindValue = visibilityBindValue
+        self.visible = visibilityBindKey == nil
+        self.type = .rowTextArea
+    }
+    
+    public convenience init(subtitle key: String?, title: String?, subtitle: String?, visibilityBindKey: String?, visibilityBindValue: Any? = nil) {
+        self.init()
+        
+        self.key = key ?? ""
+        self.title = title
+        self.subtitle = subtitle
+        self.visibilityBindKey = visibilityBindKey
+        self.visibilityBindValue = visibilityBindValue
+        self.visible = visibilityBindKey == nil
+        self.type = .rowSubtitle
+    }
+    
+    public convenience init(list key: String?, title: String?, value: String?, extraData: Any?, visibilityBindKey: String?, visibilityBindValue: Any? = nil) {
+        self.init()
+        
+        self.key = key ?? ""
+        self.title = title
+        self.value = value
+        self.extraData = extraData
+        self.visibilityBindKey = visibilityBindKey
+        self.visibilityBindValue = visibilityBindValue
+        self.visible = visibilityBindKey == nil
+        self.type = .rowList
+    }
+    
+    public convenience init(listMulti key: String?, title: String?, value: String?, extraData: Any?, visibilityBindKey: String?, visibilityBindValue: Any? = nil) {
+        self.init()
+        
+        self.key = key ?? ""
+        self.title = title
+        self.value = value
+        self.extraData = extraData
+        self.visibilityBindKey = visibilityBindKey
+        self.visibilityBindValue = visibilityBindValue
+        self.visible = visibilityBindKey == nil
+        self.type = .rowListMulti
+    }
     
     public convenience init(id: Any?, key: String?, title: String?, subtitle: String?, value: Any?, placeholder: String?, image: UIImage?, extraData: Any?, dateFormat: String?, accessoryType: UITableViewCell.AccessoryType, mandatory: Bool, type: SCFormRowType, visible: Bool = true) {
         self.init()
@@ -88,49 +263,157 @@ open class SCFormSection : NSObject {
     }
 }
 
-open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSource, UITableViewDelegate, SCTextFieldTableCellDelegate, SCSwitchTableCellDelegate, SCDateTableCellDelegate, SCDataListViewControllerDelegate {
+open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSource, UITableViewDelegate, SCTextFieldTableCellDelegate, SCTextViewTableCellDelegate, SCSwitchTableCellDelegate, SCDateTableCellDelegate, SCDataListViewControllerDelegate {
     
     // MARK: - Layout
     
     open var form: UITableView!
+    private var scrollView: UIScrollView!
+    private var containerView: UIView!
+    
+    // MARK: - Constraints
+    
+    private var cntContentHeight: NSLayoutConstraint?
+    private var cntContentLeading: NSLayoutConstraint?
+    private var cntContentTrailing: NSLayoutConstraint?
     
     // MARK: - Constants & Variables
     
     open var data = [SCFormSection]()
     private let cellIdentifier = "cellIdentifier"
     private let subtitleIdentifier = "subtitleIdentifier"
-    private let textfieldIdentifier = "textfieldIdentifier"
+    private let textfieldIdentifier = "textFieldIdentifier"
+    private let textAreaIdentifier = "textAreaIdentifier"
     private let switchIdentifier = "switchIdentifier"
     private let dateIdentifier = "dateIdentifier"
+    private let attachmentIdentifier = "attachmentIdentifier"
     
     open var tintColor: UIColor?
     open var switchColor: UIColor?
-    open var titleColor = UIColor(netHex: 0x444444)
+    open var backgroundColor: UIColor?
+    open var sectionTitleColor = UIColor.lightGray
+    open var titleColor = UIColor.black
     open var valueColor = UIColor.black
+    open var cellBackgroundColor = UIColor.white
     open var editingEnabled: Bool = true
     open var searchTintColor: UIColor?
     open var navBackIcon: UIImage?
+    open var sectionTitleFont = UIFont.systemFont(ofSize: 13, weight: .regular)
+    open var cellTitleFont = UIFont.systemFont(ofSize: 16, weight: .regular)
+    open var cellValueFont = UIFont.systemFont(ofSize: 16, weight: .regular)
+    open var autoDismissListsOnSelection: Bool = true
+    open var iPadMargin: CGFloat = 100
+    open var maxFileSize: Int?    //Mb
+    open var sectionHeaderHeight: CGFloat = 36
     
     open var currentIndexPath = IndexPath(row: 0, section: 0)
+    
+    private var marginsActive : Bool {
+        return UIDevice.isIpad && iPadMargin > 0
+    }
+    
+    open class var cellsMargin : CGFloat {
+        get {
+            let margin = CGFloat(UserDefaults.standard.float(forKey: "SCFormViewControllerCellsMargin"))
+            if margin > 0 {
+                return margin
+            }
+            return 16
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "SCFormViewControllerCellsMargin")
+            UserDefaults.standard.synchronize()
+        }
+    }
+    
+    // MARK: - Initialization
+    
+    deinit {
+        if marginsActive {
+            form.removeObserver(self, forKeyPath: "contentSize")
+        }
+    }
     
     // MARK: - UIViewController Methods
     
     override open func viewDidLoad() {
         super.viewDidLoad()
         
-        switchColor = .red
+        if let backIcon = navBackIcon {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(image: backIcon, style: .plain, target: self, action: #selector(goBack))
+        }
+        
+        if #available(iOS 13, *) {
+            
+            sectionTitleColor = .secondaryLabel
+            titleColor = .secondaryLabel
+            valueColor = UIColor { (traitCollection: UITraitCollection) -> UIColor in
+                switch traitCollection.userInterfaceStyle {
+                    case
+                        .unspecified,
+                        .light: return .black
+                    case
+                        .dark: return .white
+                    default: return .white
+                }
+            }
+            if backgroundColor == nil {
+                backgroundColor = .groupTableViewBackground
+            }
+            cellBackgroundColor = .secondarySystemGroupedBackground
+            searchTintColor = .label
+            
+        } else {
+            
+            if backgroundColor == nil {
+                backgroundColor = UIColor(netHex: 0xf5f5f5)
+            }
+        }
+        
+        view.backgroundColor = backgroundColor
         
         form = UITableView(frame: view.frame, style: .grouped)
         form.dataSource = self
         form.delegate = self
+        form.keyboardDismissMode = .interactive
+        form.backgroundColor = .clear
         form.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifier)
         form.register(SCTextFieldTableCell.self, forCellReuseIdentifier: textfieldIdentifier)
+        form.register(SCTextViewTableCell.self, forCellReuseIdentifier: textAreaIdentifier)
         form.register(SCSwitchTableCell.self, forCellReuseIdentifier: switchIdentifier)
         form.register(SCDateTableCell.self, forCellReuseIdentifier: dateIdentifier)
+        form.register(SCAttachmentTableCell.self, forCellReuseIdentifier: attachmentIdentifier)
         
-        view.addSubview(form)
-        form.autoPinEdgesToSuperviewEdges()
-        form.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIView.safeArea.bottom, right: 0)
+        if marginsActive {
+            
+            scrollView = UIScrollView()
+            view.addSubview(scrollView)
+            scrollView.autoPinEdgesToSuperviewEdges()
+            
+            let containerView = UIView()
+            scrollView.addSubview(containerView)
+            scrollView.alwaysBounceVertical = true
+            scrollView.showsVerticalScrollIndicator = true
+            containerView.autoPinEdgesToSuperviewEdges()
+            containerView.autoMatch(.width, to: .width, of: scrollView)
+            
+            containerView.addSubview(form)
+            form.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIView.safeArea.bottom, right: 0)
+            form.autoPinEdge(toSuperviewEdge: .top)
+            form.autoPinEdge(toSuperviewEdge: .bottom)
+            form.isScrollEnabled = false
+            form.showsVerticalScrollIndicator = false
+            cntContentLeading = form.autoPinEdge(toSuperviewEdge: .leading)
+            cntContentTrailing = form.autoPinEdge(toSuperviewEdge: .trailing)
+            cntContentHeight = form.autoSetDimension(.height, toSize: 100)
+            form.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
+            
+        } else {
+            
+            view.addSubview(form)
+            form.autoPinEdgesToSuperviewEdges()
+            form.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIView.safeArea.bottom, right: 0)
+        }
     }
     
     override open func viewWillAppear(_ animated: Bool) {
@@ -143,6 +426,15 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
         super.viewWillDisappear(animated)
         
         unregisterForKeyboardNotifications()
+    }
+    
+    open override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        if marginsActive {
+            cntContentLeading?.constant = UIApplication.shared.statusBarOrientation.isPortrait ? iPadMargin : iPadMargin*1.8
+            cntContentTrailing?.constant = UIApplication.shared.statusBarOrientation.isPortrait ? -iPadMargin : -(iPadMargin*1.8)
+        }
     }
     
     // MARK: - Keyboard Handlers
@@ -160,21 +452,52 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     // MARK: - UITableView DataSource & Delegate
     
     open func numberOfSections(in tableView: UITableView) -> Int {
+        
         return data.count
     }
     
     open func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         let dataSection = data[section]
         return (dataSection.stackable && !dataSection.stacked) || !dataSection.stackable ? dataSection.rows.count : 0
     }
     
-    open func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
+    open func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 50
     }
     
-    open func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    open func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        
+        let dataSection = data[indexPath.section]
+        let dataRow = dataSection.rows[indexPath.row]
+        if dataRow.type == .rowList || dataRow.type == .rowListMulti {
+            return (SCFormViewController.cellsMargin*2)+20
+        }
+        return dataRow.visible ? UITableView.automaticDimension : 0
+    }
+    
+    open func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        
         let dataSection = data[section]
-        return dataSection.title
+        
+        let header = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 36))
+        let title = UILabel(frame: header.frame)
+        header.addSubview(title)
+        
+        title.autoPinEdge(toSuperviewEdge: .leading, withInset: 20)
+        title.autoPinEdge(toSuperviewEdge: .trailing, withInset: 20)
+        title.autoPinEdge(toSuperviewEdge: .bottom, withInset: 8)
+        title.font = sectionTitleFont
+        title.textColor = sectionTitleColor
+        title.text = dataSection.title?.uppercased()
+        
+        return header
+    }
+    
+    open func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        
+        let dataSection = data[section]
+        return dataSection.title != nil ? sectionHeaderHeight : 0
     }
     
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -182,14 +505,38 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
         let section = data[indexPath.section]
         let row = section.rows[indexPath.row]
         
-        if row.type == .rowDefault || row.type == .rowList {
+        if row.type == .rowAttachment {
             
-            let cell = UITableViewCell(style: .value1, reuseIdentifier: cellIdentifier)
+            let cell = tableView.dequeueReusableCell(withIdentifier: attachmentIdentifier, for: indexPath) as! SCAttachmentTableCell
+            cell.isHidden = !row.visible
+            cell.backgroundColor = cellBackgroundColor
+            cell.clipsToBounds = true
+            cell.lblTitle.textColor = titleColor
+            cell.lblTitle.font = cellTitleFont
+            cell.lblFileName.textColor = valueColor
+            cell.lblFileName.font = cellValueFont
+            cell.configure(with: row)
+            if tintColor != nil { cell.tintColor = tintColor }
+            return cell
+            
+        } else if row.type == .rowDefault || row.type == .rowAttachment || row.type == .rowList || row.type == .rowListMulti {
+            
+            var cell: UITableViewCell!
+            if row.type == .rowDefault {
+                cell = UITableViewCell(style: .subtitle, reuseIdentifier: cellIdentifier)
+                cell.detailTextLabel?.numberOfLines = 0
+            } else {
+                cell = UITableViewCell(style: .value1, reuseIdentifier: cellIdentifier)
+                cell.detailTextLabel?.numberOfLines = 1
+            }
+            cell.isHidden = !row.visible
+            cell.selectionStyle = row.type != .rowDefault ? .default : .none
+            cell.backgroundColor = cellBackgroundColor
             cell.clipsToBounds = true
             cell.textLabel?.textColor = titleColor
-            cell.textLabel?.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+            cell.textLabel?.font = cellTitleFont
             cell.detailTextLabel?.textColor = valueColor
-            cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+            cell.detailTextLabel?.font = cellValueFont
             cell.configure(with: row)
             if tintColor != nil { cell.tintColor = tintColor }
             return cell
@@ -197,35 +544,82 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
         } else if row.type == .rowSubtitle {
             
             let cell = UITableViewCell(style: .subtitle, reuseIdentifier: subtitleIdentifier)
+            cell.isHidden = !row.visible
+            cell.selectionStyle = .none
+            cell.backgroundColor = cellBackgroundColor
             cell.clipsToBounds = true
             cell.textLabel?.textColor = titleColor
-            cell.textLabel?.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+            cell.textLabel?.font = cellTitleFont
             cell.detailTextLabel?.textColor = valueColor
-            cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+            cell.detailTextLabel?.font = cellValueFont
             cell.configure(with: row)
             if tintColor != nil { cell.tintColor = tintColor }
             return cell
             
-        } else if row.type == .rowTextField {
+        } else if row.type == .rowTextField || row.type == .rowEmail || row.type == .rowPassword {
             
             let cell = tableView.dequeueReusableCell(withIdentifier: textfieldIdentifier, for: indexPath) as! SCTextFieldTableCell
+            cell.isHidden = !row.visible
+            cell.selectionStyle = .none
             cell.delegate = self
+            cell.backgroundColor = cellBackgroundColor
             cell.accessoryType = .none
-            cell.configure(with: row)
+            cell.lblTitle.font = cellTitleFont
             cell.lblTitle.textColor = titleColor
+            cell.txfValue.placeholder = row.placeholder
             cell.txfValue.isEnabled = editingEnabled
+            cell.txfValue.font = cellValueFont
             cell.txfValue.textColor = valueColor
+            cell.txfValue.keyboardType = row.type == .rowEmail ? .emailAddress : .default
+            cell.txfValue.isSecureTextEntry = row.type == .rowPassword
+            cell.txfValue.autocapitalizationType = row.type == .rowEmail || row.type == .rowPassword ? .none : .sentences
+            switch (row.valueType) {
+                case .integer: cell.txfValue.keyboardType = .numberPad
+                case .decimal: cell.txfValue.keyboardType = .decimalPad
+                case .email: cell.txfValue.keyboardType = .emailAddress
+                case .url: cell.txfValue.keyboardType = .URL
+                default: cell.txfValue.keyboardType = .default
+            }
+            cell.configure(with: row)
+            if tintColor != nil { cell.tintColor = tintColor }
+            return cell
+            
+        } else if row.type == .rowTextArea {
+            
+            let cell = tableView.dequeueReusableCell(withIdentifier: textAreaIdentifier, for: indexPath) as! SCTextViewTableCell
+            cell.isHidden = !row.visible
+            cell.selectionStyle = .none
+            cell.delegate = self
+            cell.backgroundColor = cellBackgroundColor
+            cell.accessoryType = .none
+            cell.lblTitle.font = cellTitleFont
+            cell.lblTitle.textColor = titleColor
+            cell.txwValue.isEditable = editingEnabled
+            cell.txwValue.font = cellValueFont
+            cell.txwValue.textColor = valueColor
+            switch (row.valueType) {
+                case .integer: cell.txwValue.keyboardType = .numberPad
+                case .decimal: cell.txwValue.keyboardType = .decimalPad
+                case .email: cell.txwValue.keyboardType = .emailAddress
+                case .url: cell.txwValue.keyboardType = .URL
+                default: cell.txwValue.keyboardType = .default
+            }
+            cell.configure(with: row)
             if tintColor != nil { cell.tintColor = tintColor }
             return cell
             
         } else if row.type == .rowSwitch {
             
             let cell = tableView.dequeueReusableCell(withIdentifier: switchIdentifier, for: indexPath) as! SCSwitchTableCell
+            cell.isHidden = !row.visible
+            cell.selectionStyle = .none
             cell.delegate = self
+            cell.backgroundColor = cellBackgroundColor
             cell.accessoryType = .none
-            cell.configure(with: row)
             cell.swSwitch.isEnabled = editingEnabled
             cell.lblTitle.textColor = titleColor
+            cell.lblTitle.font = cellTitleFont
+            cell.configure(with: row)
             if switchColor != nil { cell.swSwitch.onTintColor = switchColor }
             if tintColor != nil { cell.tintColor = tintColor }
             return cell
@@ -233,11 +627,21 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
         } else if row.type == .rowDate {
             
             let cell = tableView.dequeueReusableCell(withIdentifier: dateIdentifier, for: indexPath) as! SCDateTableCell
+            cell.isHidden = !row.visible
+            cell.selectionStyle = .none
             cell.delegate = self
+            cell.backgroundColor = cellBackgroundColor
             cell.accessoryType = .none
-            cell.configure(with: row)
             cell.lblTitle.textColor = titleColor
-            cell.txfValue.textColor = valueColor
+            cell.lblTitle.font = cellTitleFont
+            if #available(iOS 14, *) {
+                cell.datePicker.tintColor = tintColor
+            } else {
+                cell.txfValue.placeholder = row.placeholder
+                cell.txfValue.textColor = valueColor
+                cell.txfValue.font = cellValueFont
+            }
+            cell.configure(with: row)
             if tintColor != nil { cell.tintColor = tintColor }
             return cell
         }
@@ -251,52 +655,160 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
         let section = data[indexPath.section]
         let row = section.rows[indexPath.row]
         
-        if row.type == .rowList && editingEnabled {
-            if let extraData = row.extraData as? [String] {
+        if (row.type == .rowList || row.type == .rowListMulti) && editingEnabled {
+            
+            if let extraData = row.extraData as? [SCDataListItem] {
+                
                 currentIndexPath = indexPath
-                let list = SCDataListViewController(data: extraData, navTitle: row.title, navBackIcon: navBackIcon, selectedValue: row.value as? String, valueColor: valueColor, searchTintColor: searchTintColor)
+                let list = SCDataListViewController(data: extraData, navTitle: row.title, navBackIcon: navBackIcon, selectedValue: row.value as? String)
+                list.navigationItem.title = row.title
+                list.searchTintColor = searchTintColor
+                list.backgroundColor = backgroundColor
+                list.titleColor = titleColor
+                list.valueColor = valueColor
+                list.cellBackgroundColor = cellBackgroundColor
+                list.multiSelect = row.type == .rowListMulti
+                list.autoDismissOnSelect = autoDismissListsOnSelection
                 list.delegate = self
-                navigationController?.pushViewController(list, animated: true)
+                
+                if UIDevice.isIpad {
+                    let nav = UINavigationController(rootViewController: list)
+                    if #available(iOS 13.0, *) {
+                        
+                    } else {
+                        nav.modalPresentationStyle = .formSheet
+                    }
+                    present(nav, animated: true, completion: nil)
+                } else {
+                    navigationController?.pushViewController(list, animated: true)
+                }
+            }
+            
+        } else if row.type == .rowAttachment {
+            
+            let picker = SCFilePicker()
+            picker.pickFile(on: self, fileExtensions: row.attachmentExtensions, maxSize: row.attachmentMaxSize ?? maxFileSize) { (fileUrl, message) in
+                if fileUrl != nil {
+                    self.data[indexPath.section].rows[indexPath.row].attachmentUrl = fileUrl
+                }
+                DispatchQueue.main.async {
+                    tableView.reloadRows(at: [indexPath], with: .none)
+                }
             }
         }
     }
     
     // MARK: - SCTextFieldTableCell Delegate
     
-    open func SCTextFieldTableCellDidChangeText(cell: SCTextFieldTableCell) {
+    open func scTextFieldTableCellDidChangeText(cell: SCTextFieldTableCell) {
         
         if let indexPath = form.indexPath(for: cell) {
+            
             data[indexPath.section].rows[indexPath.row].value = cell.txfValue.text
+            let item = data[indexPath.section].rows[indexPath.row]
+            showLinkedItems(key: item.key, value: cell.txfValue.text)
+        }
+    }
+    
+    // MARK: - SCTextViewTableCell Delegate
+    
+    public func scTextViewTableCellDidChangeText(cell: SCTextViewTableCell) {
+        
+        if let indexPath = form.indexPath(for: cell) {
+            
+            data[indexPath.section].rows[indexPath.row].value = cell.txwValue.text
+            let item = data[indexPath.section].rows[indexPath.row]
+            showLinkedItems(key: item.key, value: cell.txwValue.text)
         }
     }
     
     // MARK: - SCSwitchTableCell Delegate
     
-    open func SCSwitchTableCellDidChangeSelection(cell: SCSwitchTableCell) {
+    open func scSwitchTableCellDidChangeSelection(cell: SCSwitchTableCell) {
         
         if let indexPath = form.indexPath(for: cell) {
+            
             data[indexPath.section].rows[indexPath.row].value = cell.swSwitch.isOn
+            let item = data[indexPath.section].rows[indexPath.row]
+            showLinkedItems(key: item.key, value: cell.swSwitch.isOn)
         }
     }
     
     // MARK: - SCDateTableCell Delegate
     
-    open func SCDateTableCellDidChangeDate(cell: SCDateTableCell) {
+    open func scDateTableCellDidChangeDate(cell: SCDateTableCell) {
         
         if let indexPath = form.indexPath(for: cell) {
+            
             data[indexPath.section].rows[indexPath.row].value = cell.datePicker.date
+            let item = data[indexPath.section].rows[indexPath.row]
+            showLinkedItems(key: item.key, value: cell.datePicker.date)
         }
     }
     
     // MARK: - SCDataListViewController Delegate
     
-    open func SCDataListViewControllerDidSelectValue(value: String, at: Int) {
+    open func scDataListViewControllerDidSelectValue(viewController: UIViewController, value: SCDataListItem) {
         
         data[currentIndexPath.section].rows[currentIndexPath.row].value = value
         form.reloadRows(at: [currentIndexPath], with: .none)
+        
+        let item = data[currentIndexPath.section].rows[currentIndexPath.row]
+        showLinkedItems(key: item.key, value: value)
+    }
+    
+    open func scDataListViewControllerDidSelectValues(viewController: UIViewController, value: [SCDataListItem]) {
+        
+        data[currentIndexPath.section].rows[currentIndexPath.row].value = value
+        form.reloadRows(at: [currentIndexPath], with: .none)
+        
+        let item = data[currentIndexPath.section].rows[currentIndexPath.row]
+        showLinkedItems(key: item.key, value: value.count > 0)
     }
     
     // MARK: - Other Methods
+    
+    @objc func goBack() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    private func showLinkedItems(key: String, value: Any?) {
+        
+        var indexPathsToUpdate = [IndexPath]()
+        
+        for i in 0..<data.count {
+            let section = data[i]
+            for j in 0..<section.rows.count {
+                let row = section.rows[j]
+                var show = true
+                if row.visibilityBindKey == key {
+                    if let visibilityValue = row.visibilityBindValue {
+                        show = false
+                        if let stringValue = value as? String, let visStringValue = visibilityValue as? String {
+                            show = stringValue.compare(visStringValue) == .orderedSame
+                        } else if let intValue = value as? Int, let visIntValue = visibilityValue as? Int {
+                            show = intValue == visIntValue
+                        } else if let boolValue = value as? Bool, let visBoolValue = visibilityValue as? Bool {
+                            show = boolValue == visBoolValue
+                        }
+                        data[i].rows[j].visible = show
+                        indexPathsToUpdate.append(IndexPath(row: j, section: i))
+                    } else {
+                       show = value != nil
+                    }
+                }
+            }
+        }
+        
+        form.reloadRows(at: indexPathsToUpdate, with: .automatic)
+    }
+    
+    open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        
+        if keyPath == "contentSize" && object is UITableView && marginsActive {
+            cntContentHeight?.constant = form.contentSize.height + form.contentInset.top
+        }
+    }
     
     // MARK: - Battery Warning
     

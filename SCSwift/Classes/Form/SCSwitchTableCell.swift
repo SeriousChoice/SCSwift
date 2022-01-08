@@ -2,20 +2,28 @@
 //  SCSwitchTableCell.swift
 //  SCSwiftExample
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import UIKit
+import PureLayout
 
-public protocol SCSwitchTableCellDelegate : class {
-    func SCSwitchTableCellDidChangeSelection(cell: SCSwitchTableCell)
+public protocol SCSwitchTableCellDelegate : AnyObject {
+    func scSwitchTableCellDidChangeSelection(cell: SCSwitchTableCell)
 }
 
 public class SCSwitchTableCell: UITableViewCell {
     
-    public var lblTitle: UILabel!
-    public var swSwitch: UISwitch!
+    public var lblTitle: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        return label
+    }()
+    public var swSwitch: UISwitch = {
+        let uiswitch = UISwitch()
+        return uiswitch
+    }()
     
     public weak var delegate: SCSwitchTableCellDelegate?
     
@@ -24,40 +32,30 @@ public class SCSwitchTableCell: UITableViewCell {
         
         selectionStyle = .none
         clipsToBounds = true
-        setupInterface()
+        setupLayout()
     }
     
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupInterface() {
+    private func setupLayout() {
+        let margin = SCFormViewController.cellsMargin
         
-        lblTitle = UILabel()
-        lblTitle.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        lblTitle.numberOfLines = 0
         addSubview(lblTitle)
+        lblTitle.autoSetDimension(.height, toSize: 20, relation: .greaterThanOrEqual)
+        lblTitle.autoPinEdge(toSuperviewEdge: .top, withInset: margin)
+        lblTitle.autoPinEdge(toSuperviewEdge: .leading, withInset: 20)
+        lblTitle.autoPinEdge(toSuperviewEdge: .bottom, withInset: margin)
+        lblTitle.autoPinEdge(.trailing, to: .leading, of: swSwitch, withOffset: -20)
         
-        swSwitch = UISwitch()
         swSwitch.setOn(false, animated: false)
         swSwitch.addTarget(self, action: #selector(switchDidChangeValue(sender:)), for: .valueChanged)
         addSubview(swSwitch)
-        
-        lblTitle.autoSetDimension(.height, toSize: 28, relation: .greaterThanOrEqual)
-        lblTitle.autoPinEdge(toSuperviewEdge: .top, withInset: 8)
-        lblTitle.autoPinEdge(toSuperviewEdge: .leading, withInset: 16)
-        lblTitle.autoPinEdge(toSuperviewEdge: .bottom, withInset: 8)
-        lblTitle.autoPinEdge(.trailing, to: .leading, of: swSwitch, withOffset: -16)
-        
-        swSwitch.autoSetDimension(.height, toSize: 28, relation: .greaterThanOrEqual)
-        swSwitch.autoPinEdge(toSuperviewEdge: .top, withInset: 8)
-        swSwitch.autoPinEdge(toSuperviewEdge: .trailing, withInset: 16)
-        swSwitch.autoPinEdge(toSuperviewEdge: .bottom, withInset: 8)
-    }
-    
-    override public func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
+        swSwitch.autoSetDimension(.width, toSize: 49, relation: .equal)
+        swSwitch.autoSetDimension(.height, toSize: 31, relation: .equal)
+        swSwitch.autoPinEdge(toSuperviewEdge: .trailing, withInset: 20)
+        swSwitch.autoAlignAxis(toSuperviewAxis: .horizontal)
     }
     
     override public func setSelected(_ selected: Bool, animated: Bool) {
@@ -68,11 +66,24 @@ public class SCSwitchTableCell: UITableViewCell {
     
     public override func configure(with row: SCFormRow) {
         
-        lblTitle.text = row.mandatory ? "\(row.title ?? "")*" : row.title
+        if let title = row.title {
+            let text = row.mandatory ? "\(title) *" : title
+            if let attributed = NSMutableAttributedString(html: text) {
+                attributed.addAttributes([
+                    .font: lblTitle.font ?? UIFont.systemFont(ofSize: 17),
+                    .foregroundColor: lblTitle.textColor ?? UIColor.black
+                ], range: NSRange(location: 0, length: attributed.length))
+                lblTitle.attributedText = attributed
+            } else {
+                lblTitle.text = ""
+            }
+        } else {
+            lblTitle.text = ""
+        }
         swSwitch.isOn = (row.value as? Bool) ?? false
     }
     
     @objc func switchDidChangeValue(sender: UISwitch) {
-        delegate?.SCSwitchTableCellDidChangeSelection(cell: self)
+        delegate?.scSwitchTableCellDidChangeSelection(cell: self)
     }
 }

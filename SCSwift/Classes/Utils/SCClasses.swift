@@ -1,9 +1,9 @@
 //
-//  SCClasses.swift
+//  SCUIImageExtension.swift
 //  SCSwift
 //
-//  Created by Nicola Innocenti on 28/10/18.
-//  Copyright © 2018 Nicola Innocenti. All rights reserved.
+//  Created by Nicola Innocenti on 08/01/2022.
+//  Copyright © 2022 Nicola Innocenti. All rights reserved.
 //
 
 import Foundation
@@ -12,7 +12,7 @@ import Cache
 open class Cache : NSObject {
     
     static let shared = Cache()
-    private var storage: Storage<Data>!
+    private var storage: Storage<String, Data>!
     
     override init() {
         
@@ -68,6 +68,22 @@ open class Cache : NSObject {
             try storage.removeAll()
         } catch {
             print("[Cache] Error: \(error.localizedDescription)")
+        }
+    }
+}
+
+@propertyWrapper
+public struct UserDefault<Value> {
+    let key: String
+    let defaultValue: Value
+    let container: UserDefaults = .standard
+    
+    public var wrappedValue: Value {
+        get {
+            container.value(forKey: key) as? Value ?? defaultValue
+        }
+        set {
+            container.set(newValue, forKey: key)
         }
     }
 }
