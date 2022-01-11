@@ -219,13 +219,14 @@ public enum SCHudStyle {
             setupHudView()
             
             progressView.removeSubviews()
-            let spinner = UIActivityIndicatorView(style: .whiteLarge)
+            let spinner = UIActivityIndicatorView(style: .large)
+            spinner.color = .white
             switch theme {
-            case .dark:
-                spinner.color = .white
-            case .custom(hudColor: _, textColor: let textColor):
-                spinner.color = textColor
-            default: spinner.color = .lightGray
+                case .dark:
+                    spinner.color = .white
+                case .custom(hudColor: _, textColor: let textColor):
+                    spinner.color = textColor
+                default: spinner.color = .lightGray
             }
             
             progressView.addSubview(spinner)

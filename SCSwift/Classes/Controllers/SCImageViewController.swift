@@ -48,7 +48,8 @@ open class SCImageViewController: SCMediaViewController, UIScrollViewDelegate {
         imgImage.clipsToBounds = true
         imgImage.contentMode = .scaleAspectFit
         
-        spinner = UIActivityIndicatorView(style: .whiteLarge)
+        spinner = UIActivityIndicatorView(style: .large)
+        spinner.color = .white
         spinner.hidesWhenStopped = true
         view.addSubview(spinner)
         spinner.startAnimating()

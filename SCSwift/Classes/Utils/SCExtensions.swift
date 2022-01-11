@@ -235,8 +235,8 @@ public extension UIView {
     }
     
     class var safeArea : UIEdgeInsets {
-        if #available(iOS 11, *) {
-            return UIApplication.shared.keyWindow!.safeAreaInsets
+        if let insets = UIApplication.shared.windows.first(where: { $0.isKeyWindow })?.safeAreaInsets {
+            return insets
         }
         return .zero
     }
@@ -293,7 +293,7 @@ public extension UIDevice {
     }
     
     class var isPortrait : Bool {
-        return UIApplication.shared.statusBarOrientation == .portrait || UIApplication.shared.statusBarOrientation == .portraitUpsideDown
+        return UIApplication.shared.orientation == .portrait || UIApplication.shared.orientation == .portraitUpsideDown
     }
 }
 
@@ -358,6 +358,15 @@ public extension UIAlertController {
         }
         self.addAction(action)
         
+    }
+}
+
+extension UIApplication {
+    var orientation: UIInterfaceOrientation {
+        if let scene = UIApplication.shared.windows.first?.windowScene {
+            return scene.interfaceOrientation
+        }
+        return .portrait
     }
 }
 

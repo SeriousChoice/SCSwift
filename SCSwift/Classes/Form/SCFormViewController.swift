@@ -358,7 +358,7 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
                 }
             }
             if backgroundColor == nil {
-                backgroundColor = .groupTableViewBackground
+                backgroundColor = .systemGroupedBackground
             }
             cellBackgroundColor = .secondarySystemGroupedBackground
             searchTintColor = .label
@@ -432,8 +432,8 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
         super.viewDidLayoutSubviews()
         
         if marginsActive {
-            cntContentLeading?.constant = UIApplication.shared.statusBarOrientation.isPortrait ? iPadMargin : iPadMargin*1.8
-            cntContentTrailing?.constant = UIApplication.shared.statusBarOrientation.isPortrait ? -iPadMargin : -(iPadMargin*1.8)
+            cntContentLeading?.constant = UIApplication.shared.orientation.isPortrait ? iPadMargin : iPadMargin*1.8
+            cntContentTrailing?.constant = UIApplication.shared.orientation.isPortrait ? -iPadMargin : -(iPadMargin*1.8)
         }
     }
     
@@ -441,12 +441,10 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     
     override open func keyboardDidShow(keyboardInfo: KeyboardInfo) {
         form.contentInset.bottom = keyboardInfo.endFrame.height
-        form.scrollIndicatorInsets.bottom = keyboardInfo.endFrame.height
     }
     
     override open func keyboardDidHide(keyboardInfo: KeyboardInfo) {
         form.contentInset.bottom = 0
-        form.scrollIndicatorInsets.bottom = 0
     }
     
     // MARK: - UITableView DataSource & Delegate
