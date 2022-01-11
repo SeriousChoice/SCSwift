@@ -97,7 +97,7 @@ public extension String {
     }
     
     var image : UIImage? {
-        return UIImage(named: self)
+        return UIImage(systemName: self) ?? UIImage(named: self)
     }
     
     var containsOnlyDecimals : Bool {
