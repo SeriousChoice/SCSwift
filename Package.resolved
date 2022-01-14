@@ -3,7 +3,7 @@
     "pins": [
       {
         "package": "PureLayout",
-        "repositoryURL": "https://github.com/PureLayout/PureLayout",
+        "repositoryURL": "https://github.com/PureLayout/PureLayout.git",
         "state": {
           "branch": null,
           "revision": "5561683c96dc49b023c1299bfe4f6fbeed5f8199",
