@@ -87,3 +87,103 @@ public struct UserDefault<Value> {
         }
     }
 }
+
+public class SCObservable<T> {
+    public var value: T? {
+        didSet {
+            for (_, value) in listeners {
+                value(self.value)
+            }
+        }
+    }
+    private var listeners = [String: (value: T?) -> Void]()
+    
+    public init(_ value: T?) {
+        self.value = value
+    }
+    
+    public func bind(key: String?, listener: @escaping (_ value: T?) -> Void) {
+        listener(self.value)
+        self.listeners.updateValue(listener, forKey: key ?? UUID().uuidString)
+    }
+}
+
+public class SCTableDataSource<CELL: UITableViewCell, T: Any> : NSObject, UITableViewDataSource {
+    
+    private var tableView: UITableView?
+    private var cellIdentifier: String!
+    private var items: SCObservable<[T]>!
+    public var configureCell: (CELL, T, IndexPath) -> () = {_, _, _ in }
+    
+    public init(tableView: UITableView?, cellIdentifier: String, items: SCObservable<[T]>, configureCell: @escaping (CELL, T, IndexPath) -> ()) {
+        super.init()
+        self.tableView = tableView
+        self.cellIdentifier = cellIdentifier
+        self.items = items
+        self.configureCell = configureCell
+        observeChanges()
+    }
+    
+    private let fromRow = {(row: Int) in return IndexPath(row: row, section: 0)}
+    
+    private func observeChanges() {
+        items.bind(key: nil) {[weak self] _ in
+            DispatchQueue.main.async {
+                self?.tableView?.reloadData()
+            }
+        }
+    }
+    
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return items.value?.count ?? 0
+    }
+    
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as? CELL else {
+            return UITableViewCell()
+        }
+        if let item = items.value?[indexPath.row] {
+            configureCell(cell, item, indexPath)
+        }
+        return cell
+    }
+}
+
+public class SCCollectionDataSource<CELL: UICollectionViewCell, T: Any> : NSObject, UICollectionViewDataSource {
+    
+    private var collectionView: UICollectionView?
+    private var cellIdentifier: String!
+    private var items: SCObservable<[T]>!
+    public var configureCell: (CELL, T, IndexPath) -> () = {_, _, _ in }
+    
+    public init(collectionView: UICollectionView?, cellIdentifier: String, items: SCObservable<[T]>, configureCell: @escaping (CELL, T, IndexPath) -> ()) {
+        super.init()
+        self.collectionView = collectionView
+        self.cellIdentifier = cellIdentifier
+        self.items = items
+        self.configureCell = configureCell
+        observeChanges()
+    }
+    
+    private func observeChanges() {
+        items.bind(key: nil) {[weak self] value in
+            DispatchQueue.main.async {
+                self?.collectionView?.reloadData()
+            }
+        }
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return items.value?.count ?? 0
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as? CELL else {
+            return UICollectionViewCell()
+        }
+        if let item = items.value?[indexPath.row] {
+            configureCell(cell, item, indexPath)
+        }
+        return cell
+    }
+}
