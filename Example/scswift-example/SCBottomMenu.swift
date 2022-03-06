@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PureLayout
 
 extension UIViewController: UIViewControllerTransitioningDelegate {
     
@@ -115,7 +114,7 @@ private class SCBottomMenuHeader : UICollectionReusableView {
         textLabel.textColor = .lightGray
         textLabel.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         addSubview(textLabel)
-        textLabel.autoPinEdgesToSuperviewEdges(with: UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16))
+        textLabel.sc_pinEdgesToSuperViewEdges(withInsets: UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16))
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -136,25 +135,25 @@ private class SCBottomMenuCollectionCell : UICollectionViewCell {
         let view = UIView()
         view.backgroundColor = .clear
         addSubview(view)
-        view.autoSetDimensions(to: CGSize(width: 100, height: 100))
-        view.autoCenterInSuperview()
+        view.sc_setSize(CGSize(width: 100, height: 100))
+        view.sc_alignAxisToSuperviewAxis()
         
         imageView = UIImageView()
         imageView.backgroundColor = .lightGray
         imageView.layer.cornerRadius = 50
         view.addSubview(imageView)
-        imageView.autoPinEdge(toSuperviewEdge: .top)
-        imageView.autoPinEdge(toSuperviewEdge: .leading, withInset: 0, relation: .greaterThanOrEqual)
-        imageView.autoPinEdge(toSuperviewEdge: .trailing, withInset: 0, relation: .greaterThanOrEqual)
-        imageView.autoAlignAxis(toSuperviewAxis: .vertical)
+        imageView.sc_pinEdge(toSuperViewEdge: .top)
+        imageView.sc_pinEdge(toSuperViewEdge: .leading, withOffset: 0, withRelation: .greaterOrEqual)
+        imageView.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: 0, withRelation: .greaterOrEqual)
+        imageView.sc_alignAxisToSuperview(axis: .horizontal)
         
         textLabel = UILabel()
         textLabel.font = UIFont.systemFont(ofSize: 14, weight: .regular)
         textLabel.textAlignment = .center
         textLabel.textColor = .black
         view.addSubview(textLabel)
-        textLabel.autoPinEdges(toSuperviewMarginsExcludingEdge: .top)
-        textLabel.autoPinEdge(.top, to: .bottom, of: imageView, withOffset: 8)
+        textLabel.sc_pinEdgesToSuperViewEdges(withInsets: .zero, exceptEdge: .top)
+        textLabel.sc_pinEdge(.top, toEdge: .bottom, ofView: imageView, withOffset: 8)
     }
     
     override func layoutSubviews() {
@@ -162,7 +161,7 @@ private class SCBottomMenuCollectionCell : UICollectionViewCell {
         
         let imageViewSize = frame.size.width*0.5
         imageView.layer.cornerRadius = imageViewSize/2
-        imageView.autoSetDimensions(to: CGSize(width: imageViewSize, height: imageViewSize))
+        imageView.sc_setSize(CGSize(width: imageViewSize, height: imageViewSize))
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -231,18 +230,18 @@ open class SCBottomMenu: UIViewController, UICollectionViewDataSource, UICollect
         if UIDevice.current.userInterfaceIdiom == .pad {
             
             columns = 4
-            container.autoPinEdge(toSuperviewEdge: .bottom, withInset: UIView.safeArea.bottom > 0 ? 0 : spacing*2)
-            container.autoSetDimension(.width, toSize: 400)
-            container.autoSetDimension(.height, toSize: 300)
-            container.autoAlignAxis(toSuperviewAxis: .vertical)
+            container.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: UIView.safeArea.bottom > 0 ? 0 : spacing*2)
+            container.sc_setDimension(.width, withValue: 400)
+            container.sc_setDimension(.height, withValue: 300)
+            container.sc_alignAxisToSuperview(axis: .horizontal)
             
         } else {
             
             columns = 4
-            container.autoPinEdge(toSuperviewEdge: .bottom, withInset: UIView.safeArea.bottom > 0 ? UIView.safeArea.bottom : spacing*2)
-            container.autoPinEdge(toSuperviewEdge: .leading, withInset: UIView.safeArea.left > 0 ? UIView.safeArea.left : spacing*2)
-            container.autoPinEdge(toSuperviewEdge: .trailing, withInset: UIView.safeArea.right > 0 ? UIView.safeArea.right : spacing*2)
-            container.autoSetDimension(.height, toSize: 300)
+            container.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: UIView.safeArea.bottom > 0 ? UIView.safeArea.bottom : spacing*2)
+            container.sc_pinEdge(toSuperViewEdge: .leading, withOffset: UIView.safeArea.left > 0 ? UIView.safeArea.left : spacing*2)
+            container.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: UIView.safeArea.left > 0 ? UIView.safeArea.right : spacing*2)
+            container.sc_setDimension(.height, withValue: 300)
         }
         
         cvItems = UICollectionView(frame: view.frame, collectionViewLayout: UICollectionViewFlowLayout())
@@ -257,7 +256,7 @@ open class SCBottomMenu: UIViewController, UICollectionViewDataSource, UICollect
         cvItems.register(SCBottomMenuHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
         
         container.contentView.addSubview(cvItems)
-        cvItems.autoPinEdgesToSuperviewEdges()
+        cvItems.sc_pinEdgesToSuperViewEdges()
     }
     
     // MARK: - UICollectionView DataSource

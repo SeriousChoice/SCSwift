@@ -9,7 +9,6 @@
 import UIKit
 import AVFoundation
 import AVKit
-import PureLayout
 
 public enum VideoAspect: Int {
     case resizeAspectFill = 1
@@ -85,14 +84,13 @@ open class SCVideoViewController: SCMediaViewController, SCMediaPlayerViewContro
     
     private func setupLayout() {
         view.addSubview(videoView)
-        videoView.autoPinEdgesToSuperviewEdges()
+        videoView.sc_pinEdgesToSuperViewEdges()
         
         videoView.addSubview(imgPlaceholder)
-        imgPlaceholder.autoPinEdgesToSuperviewEdges()
+        imgPlaceholder.sc_pinEdgesToSuperViewEdges()
         
         videoView.addSubview(spinner)
-        spinner.autoAlignAxis(toSuperviewAxis: .horizontal)
-        spinner.autoAlignAxis(toSuperviewAxis: .vertical)
+        videoView.sc_alignAxisToSuperviewAxis()
         spinner.startAnimating()
     }
     

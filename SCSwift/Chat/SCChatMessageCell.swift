@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PureLayout
 import TTTAttributedLabel
 
 public protocol SCChatMessageCellDelegate : AnyObject {
@@ -90,10 +89,10 @@ open class SCChatMessageCell: UITableViewCell, TTTAttributedLabelDelegate {
         bubbleContainerView.isUserInteractionEnabled = true
         
         contentView.addSubview(bubbleContainerView)
-        cntBubbleContainerTop = bubbleContainerView.autoPinEdge(toSuperviewEdge: .top, withInset: 8)
-        cntBubbleContainerLeading = bubbleContainerView.autoPinEdge(toSuperviewEdge: .leading, withInset: 40, relation: .greaterThanOrEqual)
-        cntBubbleContainerTrailing = bubbleContainerView.autoPinEdge(toSuperviewEdge: .trailing, withInset: 8)
-        bubbleContainerView.autoPinEdge(toSuperviewEdge: .bottom, withInset: 0)
+        cntBubbleContainerTop = bubbleContainerView.sc_pinEdge(toSuperViewEdge: .top, withOffset: 8)
+        cntBubbleContainerLeading = bubbleContainerView.sc_pinEdge(toSuperViewEdge: .leading, withOffset: 40, withRelation: .greaterOrEqual)
+        cntBubbleContainerTrailing = bubbleContainerView.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: 8)
+        bubbleContainerView.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: 0)
         
         //Creating UIImageView to show bubble images
         
@@ -103,7 +102,7 @@ open class SCChatMessageCell: UITableViewCell, TTTAttributedLabelDelegate {
         bubbleView?.isUserInteractionEnabled = true
         
         bubbleContainerView.addSubview(bubbleView!)
-        bubbleView?.autoPinEdgesToSuperviewEdges()
+        bubbleView?.sc_pinEdgesToSuperViewEdges()
     }
     
     open func configure(style: SCChatMessageCellStyle) {
@@ -114,11 +113,11 @@ open class SCChatMessageCell: UITableViewCell, TTTAttributedLabelDelegate {
         
         NSLayoutConstraint.deactivate([cntBubbleContainerLeading, cntBubbleContainerTrailing])
         if isSender {
-            cntBubbleContainerLeading = bubbleContainerView.autoPinEdge(toSuperviewEdge: .leading, withInset: 40, relation: .greaterThanOrEqual)
-            cntBubbleContainerTrailing = bubbleContainerView.autoPinEdge(toSuperviewEdge: .trailing, withInset: 8)
+            cntBubbleContainerLeading = bubbleContainerView.sc_pinEdge(toSuperViewEdge: .leading, withOffset: 40, withRelation: .greaterOrEqual)
+            cntBubbleContainerTrailing = bubbleContainerView.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: 8)
         } else {
-            cntBubbleContainerLeading = bubbleContainerView.autoPinEdge(toSuperviewEdge: .leading, withInset: 8)
-            cntBubbleContainerTrailing = bubbleContainerView.autoPinEdge(toSuperviewEdge: .trailing, withInset: 40, relation: .greaterThanOrEqual)
+            cntBubbleContainerLeading = bubbleContainerView.sc_pinEdge(toSuperViewEdge: .leading, withOffset: 8)
+            cntBubbleContainerTrailing = bubbleContainerView.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: 40, withRelation: .greaterOrEqual)
         }
         NSLayoutConstraint.activate([cntBubbleContainerLeading, cntBubbleContainerTrailing])
         
@@ -190,7 +189,7 @@ open class SCChatMessageCell: UITableViewCell, TTTAttributedLabelDelegate {
             lblMessage?.textColor = .white
             bubbleView?.addSubview(lblMessage!)
             
-            lblMessage?.autoPinEdge(toSuperviewEdge: .bottom, withInset: 8)
+            lblMessage?.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: 8)
         }
     }
     
@@ -209,9 +208,9 @@ open class SCChatMessageCell: UITableViewCell, TTTAttributedLabelDelegate {
             imgImage?.contentMode = .scaleAspectFill
             imgImage?.isUserInteractionEnabled = true
             bubbleView?.insertSubview(imgImage!, at: 0)
-            imgImage?.autoPinEdgesToSuperviewEdges(with: UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5))
+            imgImage?.sc_pinEdgesToSuperViewEdges(withInsets: UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5))
             imgImage?.layer.cornerRadius = 12
-            imgImage?.autoSetDimension(.width, toSize: 280)
+            imgImage?.sc_setDimension(.width, withValue: 280)
             
             let tap = UITapGestureRecognizer(target: self, action: #selector(didTapImage))
             tap.numberOfTapsRequired = 1
@@ -231,7 +230,7 @@ open class SCChatMessageCell: UITableViewCell, TTTAttributedLabelDelegate {
             videoLayer?.alpha = 0.4
             videoLayer?.isUserInteractionEnabled = true
             imgImage?.addSubview(videoLayer!)
-            videoLayer?.autoPinEdgesToSuperviewEdges()
+            videoLayer?.sc_pinEdgesToSuperViewEdges()
             
             let tap = UITapGestureRecognizer(target: self, action: #selector(didTapVideo))
             tap.numberOfTapsRequired = 1
@@ -242,7 +241,7 @@ open class SCChatMessageCell: UITableViewCell, TTTAttributedLabelDelegate {
             playIcon = UIImageView()
             playIcon?.contentMode = .center
             imgImage?.addSubview(playIcon!)
-            playIcon?.autoPinEdgesToSuperviewEdges()
+            playIcon?.sc_pinEdgesToSuperViewEdges()
         }
     }
     
@@ -263,15 +262,15 @@ open class SCChatMessageCell: UITableViewCell, TTTAttributedLabelDelegate {
                 
                 lblSenderName?.textColor = .white
                 bubbleView?.addSubview(lblSenderName!)
-                lblSenderName!.autoPinEdgesToSuperviewEdges(with: UIEdgeInsets(top: lateralPadding, left: lateralPadding, bottom: lateralPadding, right: lateralPadding), excludingEdge: .bottom)
+                lblSenderName!.sc_pinEdgesToSuperViewEdges(withInsets: UIEdgeInsets(top: lateralPadding, left: lateralPadding, bottom: lateralPadding, right: lateralPadding), exceptEdge: .bottom)
                 
             } else {
                 
                 lblSenderName?.textColor = .gray
                 contentView.addSubview(lblSenderName!)
-                lblSenderName?.autoPinEdgesToSuperviewEdges(with: UIEdgeInsets(top: lateralPadding, left: lateralPadding, bottom: lateralPadding, right: lateralPadding), excludingEdge: .bottom)
+                lblSenderName?.sc_pinEdgesToSuperViewEdges(withInsets: UIEdgeInsets(top: lateralPadding, left: lateralPadding, bottom: lateralPadding, right: lateralPadding), exceptEdge: .bottom)
                 NSLayoutConstraint.deactivate([cntBubbleContainerTop])
-                cntBubbleContainerTop = bubbleContainerView.autoPinEdge(.top, to: .bottom, of: lblSenderName!, withOffset: 8)
+                cntBubbleContainerTop = bubbleContainerView.sc_pinEdge(.top, toEdge: .bottom, ofView: lblSenderName!, withOffset: 8)
                 NSLayoutConstraint.activate([cntBubbleContainerTop])
             }
         }
@@ -311,9 +310,9 @@ open class SCChatMessageCell: UITableViewCell, TTTAttributedLabelDelegate {
                 bubbleView?.insertSubview(lblMessageDate!, at: 1)
             } else {
                 contentView.addSubview(lblMessageDate!)
-                lblMessageDate.autoPinEdge(.top, to: .bottom, of: bubbleContainerView, withOffset: 8)
+                lblMessage?.sc_pinEdge(.top, toEdge: .bottom, ofView: bubbleContainerView, withOffset: 8)
             }
-            lblMessageDate?.autoPinEdgesToSuperviewEdges(with: UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12), excludingEdge: .top)
+            lblMessageDate?.sc_pinEdgesToSuperViewEdges(withInsets: UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12), exceptEdge: .top)
         }
         
         if style == .text || messageDatePosition == .outside {
@@ -341,11 +340,11 @@ open class SCChatMessageCell: UITableViewCell, TTTAttributedLabelDelegate {
     private func applyConstraints() {
         
         if senderPosition == .inside && lblSenderName != nil {
-            lblMessage?.autoPinEdge(toSuperviewEdge: .leading, withInset: 8)
-            lblMessage?.autoPinEdge(toSuperviewEdge: .trailing, withInset: 8)
-            lblMessage?.autoPinEdge(.top, to: .bottom, of: lblSenderName!, withOffset: 8)
+            lblMessage?.sc_pinEdge(toSuperViewEdge: .leading, withOffset: 8)
+            lblMessage?.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: 8)
+            lblMessage?.sc_pinEdge(.top, toEdge: .bottom, ofView: lblSenderName!, withOffset: 8)
         } else {
-            lblMessage?.autoPinEdgesToSuperviewEdges(with: UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8))
+            lblMessage?.sc_pinEdgesToSuperViewEdges(withInsets: UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8))
         }
     }
     

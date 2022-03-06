@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PureLayout
 
 class SCAttachmentTableCell: UITableViewCell {
     
@@ -54,27 +53,28 @@ class SCAttachmentTableCell: UITableViewCell {
     private func setupLayout() {
         let margin = SCFormViewController.cellsMargin
         
-        addSubview(lblTitle)
-        lblTitle.autoPinEdge(toSuperviewEdge: .top, withInset: margin)
-        lblTitle.autoPinEdge(toSuperviewEdge: .leading, withInset: 20)
-        lblTitle.autoPinEdge(toSuperviewEdge: .bottom, withInset: margin)
-        lblTitle.autoPinEdge(.trailing, to: .leading, of: imgAttachment, withOffset: -20, relation: .greaterThanOrEqual)
-        lblTitle.autoPinEdge(.trailing, to: .leading, of: lblFileName, withOffset: -20, relation: .greaterThanOrEqual)
+        contentView.addSubview(lblTitle)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .top, withOffset: margin)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .leading, withOffset: 20)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: -margin)
         lblTitle.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         lblTitle.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         
-        addSubview(imgAttachment)
-        imgAttachment.autoSetDimension(.width, toSize: 30, relation: .equal)
-        imgAttachment.autoSetDimension(.height, toSize: 30, relation: .equal)
-        imgAttachment.autoPinEdge(toSuperviewEdge: .trailing, withInset: 40)
-        imgAttachment.autoAlignAxis(toSuperviewAxis: .horizontal)
+        contentView.addSubview(imgAttachment)
+        imgAttachment.sc_setDimension(.width, withValue: 30)
+        imgAttachment.sc_setDimension(.height, withValue: 30)
+        imgAttachment.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: -40)
+        imgAttachment.sc_alignAxis(axis: .vertical, toView: lblTitle)
 
-        addSubview(lblFileName)
-        lblFileName.autoPinEdge(toSuperviewEdge: .top, withInset: margin)
-        lblFileName.autoPinEdge(toSuperviewEdge: .trailing, withInset: 40)
-        lblFileName.autoPinEdge(toSuperviewEdge: .bottom, withInset: margin)
+        contentView.addSubview(lblFileName)
+        lblFileName.sc_pinEdge(toSuperViewEdge: .top, withOffset: margin)
+        lblFileName.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: -40)
+        lblFileName.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: -margin)
         lblFileName.setContentHuggingPriority(.defaultLow, for: .horizontal)
         lblFileName.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        
+        lblTitle.sc_pinEdge(.trailing, toEdge: .leading, ofView: imgAttachment, withOffset: 20, withRelation: .greaterOrEqual)
+        lblTitle.sc_pinEdge(.trailing, toEdge: .leading, ofView: lblFileName, withOffset: -20, withRelation: .greaterOrEqual)
     }
 
     public override func configure(with row: SCFormRow) {

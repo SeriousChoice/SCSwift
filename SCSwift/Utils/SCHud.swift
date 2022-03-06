@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PureLayout
 
 class SCHudButtonCell : UITableViewCell {
     
@@ -151,7 +150,7 @@ public enum SCHudStyle {
             let validText = textLabel?.text != nil && textLabel?.text?.isEmpty == false
             let offset: CGFloat = validText ? contentOffset : 0
             if cntTextLabelTop == nil {
-                cntTextLabelTop = textLabel?.autoPinEdge(.top, to: .bottom, of: progressView, withOffset: offset)
+                cntTextLabelTop = textLabel?.sc_pinEdge(.top, toEdge: .bottom, ofView: progressView, withOffset: offset)
             } else {
                 cntTextLabelTop.constant = offset
             }
@@ -230,7 +229,7 @@ public enum SCHudStyle {
             }
             
             progressView.addSubview(spinner)
-            spinner.autoPinEdgesToSuperviewEdges()
+            spinner.sc_pinEdgesToSuperViewEdges()
             spinner.startAnimating()
             
         case .linearProgress:
@@ -238,7 +237,7 @@ public enum SCHudStyle {
             setupHudView()
             
             progressBar = UIProgressView(progressViewStyle: .default)
-            progressBar.autoSetDimensions(to: CGSize(width: 200, height: 6))
+            progressBar.sc_setSize(CGSize(width: 200, height: 6))
             progressBar.clipsToBounds = true
             progressBar.layer.cornerRadius = 3
             
@@ -246,8 +245,8 @@ public enum SCHudStyle {
             progressBar.trackTintColor = UIColor(netHex: 0x999999)
             progressBar.progressTintColor = .green
             progressBar.progress = 0.5
-            progressBar.autoAlignAxis(toSuperviewAxis: .vertical)
-            progressBar.autoPinEdgesToSuperviewEdges(with: UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16))
+            progressBar.sc_alignAxisToSuperview(axis: .horizontal)
+            progressBar.sc_pinEdgesToSuperViewEdges(withInsets: UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16))
             
         case .rotationInside(image: let image, duration: let duration):
             
@@ -257,11 +256,11 @@ public enum SCHudStyle {
             imageView.image = image
             imageView.clipsToBounds = true
             imageView.contentMode = .scaleAspectFit
-            imageView.autoSetDimensions(to: CGSize(width: 60, height: 60))
+            imageView.sc_setSize(CGSize(width: 60, height: 60))
             
             progressView.addSubview(imageView)
-            imageView.autoAlignAxis(toSuperviewAxis: .vertical)
-            imageView.autoPinEdgesToSuperviewEdges(with: UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16))
+            imageView.sc_alignAxisToSuperview(axis: .horizontal)
+            imageView.sc_pinEdgesToSuperViewEdges(withInsets: UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16))
             
             imageView.layer.transform = CATransform3DMakeScale(1.0, 1.0, 1.0)
             
@@ -279,10 +278,10 @@ public enum SCHudStyle {
             imageView.image = image
             imageView.clipsToBounds = true
             imageView.contentMode = .scaleAspectFit
-            imageView.autoSetDimensions(to: CGSize(width: 80, height: 80))
+            imageView.sc_setSize(CGSize(width: 80, height: 80))
             
             addSubview(imageView)
-            imageView.autoCenterInSuperview()
+            imageView.sc_alignAxisToSuperviewAxis()
             
             imageView.layer.transform = CATransform3DMakeScale(1.0, 1.0, 1.0)
             
@@ -309,8 +308,8 @@ public enum SCHudStyle {
         hudView.layer.cornerRadius = 8
         hudView.layer.borderWidth = 1/UIScreen.main.scale
         hudView.layer.borderColor = UIColor.lightGray.cgColor
-        hudView.autoSetDimension(.width, toSize: 30, relation: .greaterThanOrEqual)
-        hudView.autoSetDimension(.height, toSize: 30, relation: .greaterThanOrEqual)
+        hudView.sc_setDimension(.width, withValue: 30, withRelation: .greaterOrEqual)
+        hudView.sc_setDimension(.height, withValue: 30, withRelation: .greaterOrEqual)
         
         progressView = UIView()
         
@@ -333,27 +332,27 @@ public enum SCHudStyle {
         }
         
         hudView.addSubview(progressView)
-        progressView.autoAlignAxis(toSuperviewAxis: .vertical)
-        progressView.autoPinEdge(toSuperviewEdge: .top, withInset: contentOffset)
-        progressView.autoPinEdge(toSuperviewEdge: .left, withInset: contentOffset, relation: .greaterThanOrEqual)
-        progressView.autoPinEdge(toSuperviewEdge: .right, withInset: contentOffset, relation: .greaterThanOrEqual)
+        progressView.sc_alignAxisToSuperview(axis: .horizontal)
+        progressView.sc_pinEdge(toSuperViewEdge: .top, withOffset: contentOffset)
+        progressView.sc_pinEdge(toSuperViewEdge: .left, withOffset: contentOffset, withRelation: .greaterOrEqual)
+        progressView.sc_pinEdge(toSuperViewEdge: .right, withOffset: contentOffset, withRelation: .greaterOrEqual)
         
         hudView.addSubview(textLabel!)
         fixLabelPosition()
         if cntTextLabelBottomSuperview == nil {
-            cntTextLabelBottomSuperview = textLabel?.autoPinEdge(toSuperviewEdge: .bottom, withInset: contentOffset)
+            cntTextLabelBottomSuperview = textLabel?.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: contentOffset)
         } else {
             textLabel?.addConstraint(cntTextLabelBottomSuperview)
         }
-        textLabel?.autoPinEdge(toSuperviewEdge: .left, withInset: contentOffset)
-        textLabel?.autoPinEdge(toSuperviewEdge: .right, withInset: contentOffset)
+        textLabel?.sc_pinEdge(toSuperViewEdge: .left, withOffset: contentOffset)
+        textLabel?.sc_pinEdge(toSuperViewEdge: .right, withOffset: contentOffset)
         
         addSubview(hudView)
-        hudView.autoCenterInSuperview()
-        hudView.autoPinEdge(toSuperviewEdge: .top, withInset: 32, relation: .greaterThanOrEqual)
-        hudView.autoPinEdge(toSuperviewEdge: .bottom, withInset: 32, relation: .greaterThanOrEqual)
-        hudView.autoPinEdge(toSuperviewEdge: .left, withInset: 32, relation: .greaterThanOrEqual)
-        hudView.autoPinEdge(toSuperviewEdge: .right, withInset: 32, relation: .greaterThanOrEqual)
+        hudView.sc_alignAxisToSuperviewAxis()
+        hudView.sc_pinEdge(toSuperViewEdge: .top, withOffset: 32, withRelation: .greaterOrEqual)
+        hudView.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: 32, withRelation: .greaterOrEqual)
+        hudView.sc_pinEdge(toSuperViewEdge: .left, withOffset: 32, withRelation: .greaterOrEqual)
+        hudView.sc_pinEdge(toSuperViewEdge: .right, withOffset: 32, withRelation: .greaterOrEqual)
     }
     
     private func removeHudView() {
@@ -367,7 +366,7 @@ public enum SCHudStyle {
         
         if superview == nil {
             view.addSubview(self)
-            autoPinEdgesToSuperviewEdges()
+            sc_pinEdgesToSuperViewEdges()
             isVisible = true
         }
     }
@@ -376,7 +375,7 @@ public enum SCHudStyle {
         
         if superview == nil {
             view.addSubview(self)
-            autoPinEdgesToSuperviewEdges()
+            sc_pinEdgesToSuperViewEdges()
             if animated {
                 alpha = 0.0
                 UIView.animate(withDuration: 0.3) {
@@ -447,17 +446,17 @@ public enum SCHudStyle {
             if tblButtons.superview == nil {
                 
                 hudView.addSubview(tblButtons)
-                tblButtons.autoSetDimension(.width, toSize: 200, relation: .greaterThanOrEqual)
-                tblButtons.autoPinEdge(toSuperviewEdge: .bottom)
-                tblButtons.autoPinEdge(toSuperviewEdge: .left)
-                tblButtons.autoPinEdge(toSuperviewEdge: .right)
+                tblButtons.sc_setDimension(.width, withValue: 200, withRelation: .greaterOrEqual)
+                tblButtons.sc_pinEdge(toSuperViewEdge: .bottom)
+                tblButtons.sc_pinEdge(toSuperViewEdge: .left)
+                tblButtons.sc_pinEdge(toSuperViewEdge: .right)
                 
                 if cntTextLabelBottomSuperview != nil {
                     NSLayoutConstraint.deactivate([cntTextLabelBottomSuperview])
                 }
                 
                 if cntTextLabelBottomButtons == nil {
-                    cntTextLabelBottomButtons = textLabel?.autoPinEdge(.bottom, to: .top, of: tblButtons, withOffset: -contentOffset)
+                    cntTextLabelBottomButtons = textLabel?.sc_pinEdge(.bottom, toEdge: .top, ofView: tblButtons, withOffset: -contentOffset)
                 } else {
                     textLabel?.addConstraint(cntTextLabelBottomButtons)
                 }
@@ -483,12 +482,12 @@ public enum SCHudStyle {
             NSLayoutConstraint.deactivate([cntTextLabelBottomButtons])
         }
         if cntTextLabelBottomSuperview == nil {
-            cntTextLabelBottomSuperview = textLabel?.autoPinEdge(toSuperviewEdge: .bottom, withInset: contentOffset)
+            cntTextLabelBottomSuperview = textLabel?.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: contentOffset)
         } else {
             NSLayoutConstraint.activate([cntTextLabelBottomSuperview])
         }
         
-        textLabel?.autoPinEdge(toSuperviewEdge: .bottom, withInset: contentOffset, relation: .equal)
+        textLabel?.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: contentOffset)
         if tblButtons != nil {
             tblButtons.removeObserver(self, forKeyPath: "contentSize")
             tblButtons.removeFromSuperview()
@@ -550,7 +549,7 @@ public enum SCHudStyle {
                 let height = buttons.count > 4 ? buttonRowHeight*4 : buttonRowHeight*CGFloat(buttons.count)
                 tblButtons.isScrollEnabled = buttons.count > 4
                 if cntTblButtonsHeight == nil {
-                    cntTblButtonsHeight = tblButtons.autoSetDimension(.height, toSize: height)
+                    cntTblButtonsHeight = tblButtons.sc_setDimension(.height, withValue: height)
                 } else {
                     cntTblButtonsHeight.constant = height
                 }

@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PureLayout
 
 public protocol SCDateTableCellDelegate : AnyObject {
     func scDateTableCellDidChangeDate(cell: SCDateTableCell)
@@ -27,6 +26,7 @@ public class SCDateTableCell: UITableViewCell, UITextFieldDelegate {
     }()
     public var datePicker: UIDatePicker = {
         let picker = UIDatePicker()
+        picker.backgroundColor = .red
         return picker
     }()
     
@@ -42,37 +42,31 @@ public class SCDateTableCell: UITableViewCell, UITextFieldDelegate {
         selectionStyle = .none
         clipsToBounds = true
         
-        addSubview(lblTitle)
+        contentView.addSubview(lblTitle)
         let margin = SCFormViewController.cellsMargin
         
-        //lblTitle.autoSetDimension(.height, toSize: 28, relation: .greaterThanOrEqual)
-        lblTitle.autoPinEdge(toSuperviewEdge: .top, withInset: margin)
-        lblTitle.autoPinEdge(toSuperviewEdge: .leading, withInset: 20)
-        lblTitle.autoPinEdge(toSuperviewEdge: .bottom, withInset: margin)
-        lblTitle.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .top, withOffset: margin)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .leading, withOffset: 20)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: -margin)
+        lblTitle.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         
-        datePicker.addTarget(self, action: #selector(datePickerDidChangeValue(picker:)), for: .valueChanged)
         if #available(iOS 14, *) {
-            addSubview(datePicker)
-            
-            lblTitle.autoPinEdge(.trailing, to: .leading, of: datePicker, withOffset: -20)
-            datePicker.autoPinEdge(toSuperviewEdge: .top, withInset: 8, relation: .greaterThanOrEqual)
-            datePicker.autoPinEdge(toSuperviewEdge: .trailing, withInset: 20)
-            datePicker.autoPinEdge(toSuperviewEdge: .bottom, withInset: 8, relation: .greaterThanOrEqual)
-            datePicker.autoAlignAxis(toSuperviewAxis: .horizontal)
-            datePicker.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-            
+            datePicker.addTarget(self, action: #selector(datePickerDidChangeValue(picker:)), for: .valueChanged)
+            contentView.addSubview(datePicker)
+            datePicker.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: -20)
+            datePicker.sc_pinEdge(.leading, toEdge: .trailing, ofView: lblTitle, withOffset: 20, withRelation: .greaterOrEqual)
+            datePicker.sc_alignAxis(axis: .vertical, toView: lblTitle)
+            datePicker.setContentHuggingPriority(.defaultLow, for: .horizontal)
         } else {
             txfValue.delegate = self
-            
-            addSubview(txfValue)
-            lblTitle.autoPinEdge(.trailing, to: .leading, of: txfValue, withOffset: -20)
+            contentView.addSubview(txfValue)
+            lblTitle.sc_pinEdge(.trailing, toEdge: .leading, ofView: txfValue, withOffset: 20)
             
             txfValue.inputView = datePicker
-            txfValue.autoPinEdge(toSuperviewEdge: .top, withInset: 8, relation: .greaterThanOrEqual)
-            txfValue.autoPinEdge(toSuperviewEdge: .trailing, withInset: 20)
-            txfValue.autoPinEdge(toSuperviewEdge: .bottom, withInset: 8, relation: .greaterThanOrEqual)
-            txfValue.autoAlignAxis(toSuperviewAxis: .horizontal)
+            txfValue.sc_pinEdge(toSuperViewEdge: .top, withOffset: 8, withRelation: .greaterOrEqual)
+            txfValue.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: 20)
+            txfValue.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: -8, withRelation: .greaterOrEqual)
+            txfValue.sc_alignAxisToSuperview(axis: .vertical)
             txfValue.setContentHuggingPriority(.defaultLow, for: .horizontal)
         }
     }

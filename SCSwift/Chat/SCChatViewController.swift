@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PureLayout
 
 public enum ItemPosition {
     case inside
@@ -47,7 +46,7 @@ open class SCChatViewController: UIViewController, UITableViewDataSource, UITabl
         tblChat.register(SCChatMessageCell.self, forCellReuseIdentifier: cellIdentifier)
         
         view.addSubview(tblChat)
-        tblChat.autoPinEdgesToSuperviewEdges()
+        tblChat.sc_pinEdgesToSuperViewEdges()
         
         bubbleSender = #imageLiteral(resourceName: "bubble_sender").resizableImage(withCapInsets: UIEdgeInsets(top: 19.5, left: 19.5, bottom: 19.5, right: 19.5), resizingMode: .stretch)
         bubbleReceiver = #imageLiteral(resourceName: "bubble_receiver").resizableImage(withCapInsets: UIEdgeInsets(top: 19.5, left: 19.5, bottom: 19.5, right: 19.5), resizingMode: .stretch)

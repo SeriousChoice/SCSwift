@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PureLayout
 
 public protocol SCTextFieldTableCellDelegate : AnyObject {
     func scTextFieldTableCellDidChangeText(cell: SCTextFieldTableCell)
@@ -39,19 +38,19 @@ public class SCTextFieldTableCell: UITableViewCell {
     private func setupLayout() {
         let margin = SCFormViewController.cellsMargin
         
-        addSubview(lblTitle)
-        lblTitle.autoPinEdge(toSuperviewEdge: .top, withInset: margin)
-        lblTitle.autoPinEdge(toSuperviewEdge: .leading, withInset: 20)
-        lblTitle.autoPinEdge(toSuperviewEdge: .bottom, withInset: margin)
-        lblTitle.autoPinEdge(.trailing, to: .leading, of: txfValue, withOffset: -20)
+        contentView.addSubview(lblTitle)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .top, withOffset: margin)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .leading, withOffset: 20)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: -margin)
         lblTitle.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         
         txfValue.addTarget(self, action: #selector(textFieldDidChange(textField:)), for: .editingChanged)
-        addSubview(txfValue)
-        txfValue.autoPinEdge(toSuperviewEdge: .top, withInset: 8, relation: .greaterThanOrEqual)
-        txfValue.autoPinEdge(toSuperviewEdge: .trailing, withInset: 20)
-        txfValue.autoPinEdge(toSuperviewEdge: .bottom, withInset: 8, relation: .greaterThanOrEqual)
-        txfValue.autoAlignAxis(toSuperviewAxis: .horizontal)
+        contentView.addSubview(txfValue)
+        txfValue.sc_pinEdge(toSuperViewEdge: .top, withOffset: 8, withRelation: .greaterOrEqual)
+        txfValue.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: 20)
+        txfValue.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: -8, withRelation: .greaterOrEqual)
+        txfValue.sc_pinEdge(.leading, toEdge: .trailing, ofView: lblTitle, withOffset: 20)
+        txfValue.sc_alignAxisToSuperview(axis: .vertical)
         txfValue.setContentHuggingPriority(.defaultLow, for: .horizontal)
     }
     

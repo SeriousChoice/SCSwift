@@ -106,7 +106,7 @@ class ViewController: UIViewController {
                 SCFormRow(subtitle: "subtitle_2", title: "Title 4-2", subtitle: "Subtitle 3-2", visibilityBindKey: nil)
             ]),
             SCFormSection(id: nil, title: "Switch", subtitle: nil, value: nil, rows: [
-                SCFormRow(switch: "switch_1", title: "Titleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee 5-1", value: false, visibilityBindKey: nil),
+                SCFormRow(switch: "switch_1", title: "Title 5-1", value: false, visibilityBindKey: nil),
                 SCFormRow(switch: "switch_2", title: "Titleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee 5-2", value: false, visibilityBindKey: nil)
             ]),
             SCFormSection(id: nil, title: "Date", subtitle: nil, value: nil, rows: [

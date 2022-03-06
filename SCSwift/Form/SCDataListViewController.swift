@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PureLayout
 import RxSwift
 
 open class SCDataListItem : NSObject {
@@ -145,17 +144,17 @@ open class SCDataListViewController: SCPrimitiveViewController, UITableViewDataS
         searchBar.delegate = self
         searchBar.tintColor = searchTintColor
         view.addSubview(searchBar)
-        searchBar.autoPinEdge(toSuperviewEdge: .top)
-        searchBar.autoPinEdge(toSuperviewEdge: .leading)
-        searchBar.autoPinEdge(toSuperviewEdge: .trailing)
+        searchBar.sc_pinEdge(toSuperViewEdge: .top)
+        searchBar.sc_pinEdge(toSuperViewEdge: .leading)
+        searchBar.sc_pinEdge(toSuperViewEdge: .trailing)
         
         list.dataSource = self
         list.delegate = self
         view.addSubview(list)
-        list.autoPinEdge(.top, to: .bottom, of: searchBar)
-        list.autoPinEdge(toSuperviewEdge: .bottom)
-        list.autoPinEdge(toSuperviewEdge: .leading)
-        list.autoPinEdge(toSuperviewEdge: .trailing)
+        list.sc_pinEdge(.top, toEdge: .bottom, ofView: searchBar)
+        list.sc_pinEdge(toSuperViewEdge: .bottom)
+        list.sc_pinEdge(toSuperViewEdge: .leading)
+        list.sc_pinEdge(toSuperViewEdge: .trailing)
         
         if let textfield = searchBar.value(forKey: "searchField") as? UITextField {
             textfield.textColor = .black

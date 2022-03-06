@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PureLayout
 
 public extension UITableViewCell {
     
@@ -267,9 +266,28 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     
     // MARK: - Layout
     
-    open var form: UITableView!
-    private var scrollView: UIScrollView!
-    private var containerView: UIView!
+    open var form: UITableView = {
+        let table = UITableView(frame: .zero, style: .grouped)
+        table.keyboardDismissMode = .interactive
+        table.backgroundColor = .clear
+        table.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.identifier)
+        table.register(SCTextFieldTableCell.self, forCellReuseIdentifier: SCTextFieldTableCell.identifier)
+        table.register(SCTextViewTableCell.self, forCellReuseIdentifier: SCTextViewTableCell.identifier)
+        table.register(SCSwitchTableCell.self, forCellReuseIdentifier: SCSwitchTableCell.identifier)
+        table.register(SCDateTableCell.self, forCellReuseIdentifier: SCDateTableCell.identifier)
+        table.register(SCAttachmentTableCell.self, forCellReuseIdentifier: SCAttachmentTableCell.identifier)
+        return table
+    }()
+    private var scrollView: UIScrollView = {
+        let scroll = UIScrollView()
+        scroll.alwaysBounceVertical = true
+        scroll.showsVerticalScrollIndicator = true
+        return scroll
+    }()
+    private var containerView: UIView = {
+        let view = UIView()
+        return view
+    }()
     
     // MARK: - Constraints
     
@@ -280,13 +298,6 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     // MARK: - Constants & Variables
     
     open var data = [SCFormSection]()
-    private let cellIdentifier = "cellIdentifier"
-    private let subtitleIdentifier = "subtitleIdentifier"
-    private let textfieldIdentifier = "textFieldIdentifier"
-    private let textAreaIdentifier = "textAreaIdentifier"
-    private let switchIdentifier = "switchIdentifier"
-    private let dateIdentifier = "dateIdentifier"
-    private let attachmentIdentifier = "attachmentIdentifier"
     
     open var tintColor: UIColor?
     open var switchColor: UIColor?
@@ -371,66 +382,47 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
         }
         
         view.backgroundColor = backgroundColor
-        
-        form = UITableView(frame: view.frame, style: .grouped)
         form.dataSource = self
         form.delegate = self
-        form.keyboardDismissMode = .interactive
-        form.backgroundColor = .clear
-        form.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifier)
-        form.register(SCTextFieldTableCell.self, forCellReuseIdentifier: textfieldIdentifier)
-        form.register(SCTextViewTableCell.self, forCellReuseIdentifier: textAreaIdentifier)
-        form.register(SCSwitchTableCell.self, forCellReuseIdentifier: switchIdentifier)
-        form.register(SCDateTableCell.self, forCellReuseIdentifier: dateIdentifier)
-        form.register(SCAttachmentTableCell.self, forCellReuseIdentifier: attachmentIdentifier)
         
         if marginsActive {
-            
-            scrollView = UIScrollView()
             view.addSubview(scrollView)
-            scrollView.autoPinEdgesToSuperviewEdges()
+            scrollView.sc_pinEdgesToSuperViewEdges()
             
             let containerView = UIView()
             scrollView.addSubview(containerView)
-            scrollView.alwaysBounceVertical = true
-            scrollView.showsVerticalScrollIndicator = true
-            containerView.autoPinEdgesToSuperviewEdges()
-            containerView.autoMatch(.width, to: .width, of: scrollView)
+            containerView.sc_pinEdgesToSuperViewEdges()
+            containerView.sc_MatchDimension(.width, toDimension: .width, ofView: scrollView)
             
             containerView.addSubview(form)
             form.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIView.safeArea.bottom, right: 0)
-            form.autoPinEdge(toSuperviewEdge: .top)
-            form.autoPinEdge(toSuperviewEdge: .bottom)
+            form.sc_pinEdge(toSuperViewEdge: .top)
+            form.sc_pinEdge(toSuperViewEdge: .bottom)
             form.isScrollEnabled = false
             form.showsVerticalScrollIndicator = false
-            cntContentLeading = form.autoPinEdge(toSuperviewEdge: .leading)
-            cntContentTrailing = form.autoPinEdge(toSuperviewEdge: .trailing)
-            cntContentHeight = form.autoSetDimension(.height, toSize: 100)
+            cntContentLeading = form.sc_pinEdge(toSuperViewEdge: .leading)
+            cntContentTrailing = form.sc_pinEdge(toSuperViewEdge: .trailing)
+            cntContentHeight = form.sc_setDimension(.height, withValue: 100)
             form.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
-            
         } else {
-            
             view.addSubview(form)
-            form.autoPinEdgesToSuperviewEdges()
+            form.sc_pinEdgesToSuperViewEdges()
             form.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIView.safeArea.bottom, right: 0)
         }
     }
     
     override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         registerForKeyboardNotifications()
     }
     
     override open func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
         unregisterForKeyboardNotifications()
     }
     
     open override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
         if marginsActive {
             cntContentLeading?.constant = UIApplication.shared.orientation.isPortrait ? iPadMargin : iPadMargin*1.8
             cntContentTrailing?.constant = UIApplication.shared.orientation.isPortrait ? -iPadMargin : -(iPadMargin*1.8)
@@ -450,12 +442,10 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     // MARK: - UITableView DataSource & Delegate
     
     open func numberOfSections(in tableView: UITableView) -> Int {
-        
         return data.count
     }
     
     open func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
         let dataSection = data[section]
         return (dataSection.stackable && !dataSection.stacked) || !dataSection.stackable ? dataSection.rows.count : 0
     }
@@ -465,7 +455,6 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     }
     
     open func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        
         let dataSection = data[indexPath.section]
         let dataRow = dataSection.rows[indexPath.row]
         if dataRow.type == .rowList || dataRow.type == .rowListMulti {
@@ -475,16 +464,15 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     }
     
     open func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        
         let dataSection = data[section]
         
         let header = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 36))
         let title = UILabel(frame: header.frame)
         header.addSubview(title)
         
-        title.autoPinEdge(toSuperviewEdge: .leading, withInset: 20)
-        title.autoPinEdge(toSuperviewEdge: .trailing, withInset: 20)
-        title.autoPinEdge(toSuperviewEdge: .bottom, withInset: 8)
+        title.sc_pinEdge(toSuperViewEdge: .leading, withOffset: 20)
+        title.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: 20)
+        title.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: 8)
         title.font = sectionTitleFont
         title.textColor = sectionTitleColor
         title.text = dataSection.title?.uppercased()
@@ -493,38 +481,34 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     }
     
     open func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        
         let dataSection = data[section]
         return dataSection.title != nil ? sectionHeaderHeight : 0
     }
     
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let section = data[indexPath.section]
         let row = section.rows[indexPath.row]
         
         if row.type == .rowAttachment {
-            
-            let cell = tableView.dequeueReusableCell(withIdentifier: attachmentIdentifier, for: indexPath) as! SCAttachmentTableCell
-            cell.isHidden = !row.visible
-            cell.backgroundColor = cellBackgroundColor
-            cell.clipsToBounds = true
-            cell.lblTitle.textColor = titleColor
-            cell.lblTitle.font = cellTitleFont
-            cell.lblFileName.textColor = valueColor
-            cell.lblFileName.font = cellValueFont
-            cell.configure(with: row)
-            if tintColor != nil { cell.tintColor = tintColor }
-            return cell
-            
+            if let cell = tableView.dequeueReusableCell(withIdentifier: SCAttachmentTableCell.identifier, for: indexPath) as? SCAttachmentTableCell {
+                cell.isHidden = !row.visible
+                cell.backgroundColor = cellBackgroundColor
+                cell.clipsToBounds = true
+                cell.lblTitle.textColor = titleColor
+                cell.lblTitle.font = cellTitleFont
+                cell.lblFileName.textColor = valueColor
+                cell.lblFileName.font = cellValueFont
+                cell.configure(with: row)
+                if tintColor != nil { cell.tintColor = tintColor }
+                return cell
+            }
         } else if row.type == .rowDefault || row.type == .rowAttachment || row.type == .rowList || row.type == .rowListMulti {
-            
             var cell: UITableViewCell!
             if row.type == .rowDefault {
-                cell = UITableViewCell(style: .subtitle, reuseIdentifier: cellIdentifier)
+                cell = UITableViewCell(style: .subtitle, reuseIdentifier: UITableViewCell.identifier)
                 cell.detailTextLabel?.numberOfLines = 0
             } else {
-                cell = UITableViewCell(style: .value1, reuseIdentifier: cellIdentifier)
+                cell = UITableViewCell(style: .value1, reuseIdentifier: UITableViewCell.identifier)
                 cell.detailTextLabel?.numberOfLines = 1
             }
             cell.isHidden = !row.visible
@@ -538,10 +522,8 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
             cell.configure(with: row)
             if tintColor != nil { cell.tintColor = tintColor }
             return cell
-            
         } else if row.type == .rowSubtitle {
-            
-            let cell = UITableViewCell(style: .subtitle, reuseIdentifier: subtitleIdentifier)
+            let cell = UITableViewCell(style: .subtitle, reuseIdentifier: UITableViewCell.identifier)
             cell.isHidden = !row.visible
             cell.selectionStyle = .none
             cell.backgroundColor = cellBackgroundColor
@@ -553,97 +535,93 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
             cell.configure(with: row)
             if tintColor != nil { cell.tintColor = tintColor }
             return cell
-            
         } else if row.type == .rowTextField || row.type == .rowEmail || row.type == .rowPassword {
-            
-            let cell = tableView.dequeueReusableCell(withIdentifier: textfieldIdentifier, for: indexPath) as! SCTextFieldTableCell
-            cell.isHidden = !row.visible
-            cell.selectionStyle = .none
-            cell.delegate = self
-            cell.backgroundColor = cellBackgroundColor
-            cell.accessoryType = .none
-            cell.lblTitle.font = cellTitleFont
-            cell.lblTitle.textColor = titleColor
-            cell.txfValue.placeholder = row.placeholder
-            cell.txfValue.isEnabled = editingEnabled
-            cell.txfValue.font = cellValueFont
-            cell.txfValue.textColor = valueColor
-            cell.txfValue.keyboardType = row.type == .rowEmail ? .emailAddress : .default
-            cell.txfValue.isSecureTextEntry = row.type == .rowPassword
-            cell.txfValue.autocapitalizationType = row.type == .rowEmail || row.type == .rowPassword ? .none : .sentences
-            switch (row.valueType) {
-                case .integer: cell.txfValue.keyboardType = .numberPad
-                case .decimal: cell.txfValue.keyboardType = .decimalPad
-                case .email: cell.txfValue.keyboardType = .emailAddress
-                case .url: cell.txfValue.keyboardType = .URL
-                default: cell.txfValue.keyboardType = .default
+            if let cell = tableView.dequeueReusableCell(withIdentifier: SCTextFieldTableCell.identifier, for: indexPath) as? SCTextFieldTableCell {
+                cell.isHidden = !row.visible
+                cell.selectionStyle = .none
+                cell.delegate = self
+                cell.backgroundColor = cellBackgroundColor
+                cell.accessoryType = .none
+                cell.lblTitle.font = cellTitleFont
+                cell.lblTitle.textColor = titleColor
+                cell.txfValue.placeholder = row.placeholder
+                cell.txfValue.isEnabled = editingEnabled
+                cell.txfValue.font = cellValueFont
+                cell.txfValue.textColor = valueColor
+                cell.txfValue.keyboardType = row.type == .rowEmail ? .emailAddress : .default
+                cell.txfValue.isSecureTextEntry = row.type == .rowPassword
+                cell.txfValue.autocapitalizationType = row.type == .rowEmail || row.type == .rowPassword ? .none : .sentences
+                switch (row.valueType) {
+                    case .integer: cell.txfValue.keyboardType = .numberPad
+                    case .decimal: cell.txfValue.keyboardType = .decimalPad
+                    case .email: cell.txfValue.keyboardType = .emailAddress
+                    case .url: cell.txfValue.keyboardType = .URL
+                    default: cell.txfValue.keyboardType = .default
+                }
+                cell.configure(with: row)
+                if tintColor != nil { cell.tintColor = tintColor }
+                return cell
             }
-            cell.configure(with: row)
-            if tintColor != nil { cell.tintColor = tintColor }
-            return cell
-            
         } else if row.type == .rowTextArea {
             
-            let cell = tableView.dequeueReusableCell(withIdentifier: textAreaIdentifier, for: indexPath) as! SCTextViewTableCell
-            cell.isHidden = !row.visible
-            cell.selectionStyle = .none
-            cell.delegate = self
-            cell.backgroundColor = cellBackgroundColor
-            cell.accessoryType = .none
-            cell.lblTitle.font = cellTitleFont
-            cell.lblTitle.textColor = titleColor
-            cell.txwValue.isEditable = editingEnabled
-            cell.txwValue.font = cellValueFont
-            cell.txwValue.textColor = valueColor
-            switch (row.valueType) {
-                case .integer: cell.txwValue.keyboardType = .numberPad
-                case .decimal: cell.txwValue.keyboardType = .decimalPad
-                case .email: cell.txwValue.keyboardType = .emailAddress
-                case .url: cell.txwValue.keyboardType = .URL
-                default: cell.txwValue.keyboardType = .default
+            if let cell = tableView.dequeueReusableCell(withIdentifier: SCTextViewTableCell.identifier, for: indexPath) as? SCTextViewTableCell {
+                cell.isHidden = !row.visible
+                cell.selectionStyle = .none
+                cell.delegate = self
+                cell.backgroundColor = cellBackgroundColor
+                cell.accessoryType = .none
+                cell.lblTitle.font = cellTitleFont
+                cell.lblTitle.textColor = titleColor
+                cell.txwValue.isEditable = editingEnabled
+                cell.txwValue.font = cellValueFont
+                cell.txwValue.textColor = valueColor
+                switch (row.valueType) {
+                    case .integer: cell.txwValue.keyboardType = .numberPad
+                    case .decimal: cell.txwValue.keyboardType = .decimalPad
+                    case .email: cell.txwValue.keyboardType = .emailAddress
+                    case .url: cell.txwValue.keyboardType = .URL
+                    default: cell.txwValue.keyboardType = .default
+                }
+                cell.configure(with: row)
+                if tintColor != nil { cell.tintColor = tintColor }
+                return cell
             }
-            cell.configure(with: row)
-            if tintColor != nil { cell.tintColor = tintColor }
-            return cell
-            
         } else if row.type == .rowSwitch {
-            
-            let cell = tableView.dequeueReusableCell(withIdentifier: switchIdentifier, for: indexPath) as! SCSwitchTableCell
-            cell.isHidden = !row.visible
-            cell.selectionStyle = .none
-            cell.delegate = self
-            cell.backgroundColor = cellBackgroundColor
-            cell.accessoryType = .none
-            cell.swSwitch.isEnabled = editingEnabled
-            cell.lblTitle.textColor = titleColor
-            cell.lblTitle.font = cellTitleFont
-            cell.configure(with: row)
-            if switchColor != nil { cell.swSwitch.onTintColor = switchColor }
-            if tintColor != nil { cell.tintColor = tintColor }
-            return cell
-            
-        } else if row.type == .rowDate {
-            
-            let cell = tableView.dequeueReusableCell(withIdentifier: dateIdentifier, for: indexPath) as! SCDateTableCell
-            cell.isHidden = !row.visible
-            cell.selectionStyle = .none
-            cell.delegate = self
-            cell.backgroundColor = cellBackgroundColor
-            cell.accessoryType = .none
-            cell.lblTitle.textColor = titleColor
-            cell.lblTitle.font = cellTitleFont
-            if #available(iOS 14, *) {
-                cell.datePicker.tintColor = tintColor
-            } else {
-                cell.txfValue.placeholder = row.placeholder
-                cell.txfValue.textColor = valueColor
-                cell.txfValue.font = cellValueFont
+            if let cell = tableView.dequeueReusableCell(withIdentifier: SCSwitchTableCell.identifier, for: indexPath) as? SCSwitchTableCell {
+                cell.isHidden = !row.visible
+                cell.selectionStyle = .none
+                cell.delegate = self
+                cell.backgroundColor = cellBackgroundColor
+                cell.accessoryType = .none
+                cell.swSwitch.isEnabled = editingEnabled
+                cell.lblTitle.textColor = titleColor
+                cell.lblTitle.font = cellTitleFont
+                cell.configure(with: row)
+                if switchColor != nil { cell.swSwitch.onTintColor = switchColor }
+                if tintColor != nil { cell.tintColor = tintColor }
+                return cell
             }
-            cell.configure(with: row)
-            if tintColor != nil { cell.tintColor = tintColor }
-            return cell
+        } else if row.type == .rowDate {
+            if let cell = tableView.dequeueReusableCell(withIdentifier: SCDateTableCell.identifier, for: indexPath) as? SCDateTableCell {
+                cell.isHidden = !row.visible
+                cell.selectionStyle = .none
+                cell.delegate = self
+                cell.backgroundColor = cellBackgroundColor
+                cell.accessoryType = .none
+                cell.lblTitle.textColor = titleColor
+                cell.lblTitle.font = cellTitleFont
+                if #available(iOS 14, *) {
+                    cell.datePicker.tintColor = tintColor
+                } else {
+                    cell.txfValue.placeholder = row.placeholder
+                    cell.txfValue.textColor = valueColor
+                    cell.txfValue.font = cellValueFont
+                }
+                cell.configure(with: row)
+                if tintColor != nil { cell.tintColor = tintColor }
+                return cell
+            }
         }
-        
         return UITableViewCell()
     }
     
@@ -699,7 +677,6 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     // MARK: - SCTextFieldTableCell Delegate
     
     open func scTextFieldTableCellDidChangeText(cell: SCTextFieldTableCell) {
-        
         if let indexPath = form.indexPath(for: cell) {
             
             data[indexPath.section].rows[indexPath.row].value = cell.txfValue.text
@@ -711,7 +688,6 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     // MARK: - SCTextViewTableCell Delegate
     
     public func scTextViewTableCellDidChangeText(cell: SCTextViewTableCell) {
-        
         if let indexPath = form.indexPath(for: cell) {
             
             data[indexPath.section].rows[indexPath.row].value = cell.txwValue.text
@@ -723,7 +699,6 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     // MARK: - SCSwitchTableCell Delegate
     
     open func scSwitchTableCellDidChangeSelection(cell: SCSwitchTableCell) {
-        
         if let indexPath = form.indexPath(for: cell) {
             
             data[indexPath.section].rows[indexPath.row].value = cell.swSwitch.isOn
@@ -735,7 +710,6 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     // MARK: - SCDateTableCell Delegate
     
     open func scDateTableCellDidChangeDate(cell: SCDateTableCell) {
-        
         if let indexPath = form.indexPath(for: cell) {
             
             data[indexPath.section].rows[indexPath.row].value = cell.datePicker.date
@@ -747,7 +721,6 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     // MARK: - SCDataListViewController Delegate
     
     open func scDataListViewControllerDidSelectValue(viewController: UIViewController, value: SCDataListItem) {
-        
         data[currentIndexPath.section].rows[currentIndexPath.row].value = value
         form.reloadRows(at: [currentIndexPath], with: .none)
         
@@ -756,7 +729,6 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     }
     
     open func scDataListViewControllerDidSelectValues(viewController: UIViewController, value: [SCDataListItem]) {
-        
         data[currentIndexPath.section].rows[currentIndexPath.row].value = value
         form.reloadRows(at: [currentIndexPath], with: .none)
         
@@ -771,7 +743,6 @@ open class SCFormViewController: SCPrimitiveViewController, UITableViewDataSourc
     }
     
     private func showLinkedItems(key: String, value: Any?) {
-        
         var indexPathsToUpdate = [IndexPath]()
         
         for i in 0..<data.count {

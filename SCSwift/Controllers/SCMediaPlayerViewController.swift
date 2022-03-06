@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PureLayout
 
 public enum MediaType : Int {
     case none = 0

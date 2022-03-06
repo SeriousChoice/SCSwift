@@ -18,32 +18,29 @@
     "git": "https://github.com/SeriousChoice/SCSwift.git",
     "tag": "1.1.0"
   },
-  "source_files": "SCSwift/Classes/**/*.swift",
+  "source_files": "SCSwift/**/*.swift",
   "resources": "SCSwift/Resources/**/*.*",
   "requires_arc": true,
   "xcconfig": {
     "FRAMEWORK_SEARCH_PATHS": "$(PODS_ROOT)"
   },
   "dependencies": {
-    "Alamofire": [
-
-    ],
     "SDWebImage": [
 
     ],
     "Cache": [
 
     ],
-    "PureLayout": [
+    "TTTAttributedLabel": [
+
+    ],
+    "Alamofire": [
 
     ],
     "RxSwift": [
 
     ],
     "RxCocoa": [
-
-    ],
-    "TTTAttributedLabel": [
 
     ]
   }

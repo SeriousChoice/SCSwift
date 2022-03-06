@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PureLayout
 
 public protocol SCTextViewTableCellDelegate : AnyObject {
     func scTextViewTableCellDidChangeText(cell: SCTextViewTableCell)
@@ -23,6 +22,7 @@ public class SCTextViewTableCell: UITableViewCell, UITextViewDelegate {
     public var txwValue: UITextView = {
         let textView = UITextView()
         textView.textContainerInset.left = -6
+        textView.isEditable = true
         return textView
     }()
     
@@ -37,19 +37,18 @@ public class SCTextViewTableCell: UITableViewCell, UITextViewDelegate {
     }
     
     private func setupLayout() {
-        addSubview(lblTitle)
-        lblTitle.autoSetDimension(.height, toSize: 20, relation: .greaterThanOrEqual)
-        lblTitle.autoPinEdge(toSuperviewEdge: .top, withInset: 12)
-        lblTitle.autoPinEdge(toSuperviewEdge: .leading, withInset: 20)
-        lblTitle.autoPinEdge(toSuperviewEdge: .trailing, withInset: 20)
+        contentView.addSubview(lblTitle)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .top, withOffset: 12)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .leading, withOffset: 20)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: -20)
         
         txwValue.delegate = self
-        addSubview(txwValue)
-        txwValue.autoSetDimension(.height, toSize: 120, relation: .equal)
-        txwValue.autoPinEdge(.top, to: .bottom, of: lblTitle, withOffset: 8)
-        txwValue.autoPinEdge(.leading, to: .leading, of: lblTitle)
-        txwValue.autoPinEdge(.trailing, to: .trailing, of: lblTitle)
-        txwValue.autoPinEdge(toSuperviewEdge: .bottom, withInset: 12)
+        contentView.addSubview(txwValue)
+        txwValue.sc_setDimension(.height, withValue: 120)
+        txwValue.sc_pinEdge(.top, toEdge: .bottom, ofView: lblTitle, withOffset: 8)
+        txwValue.sc_pinEdge(.leading, toEdge: .leading, ofView: lblTitle)
+        txwValue.sc_pinEdge(.trailing, toEdge: .trailing, ofView: lblTitle)
+        txwValue.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: -12)
     }
     
     required public init?(coder aDecoder: NSCoder) {

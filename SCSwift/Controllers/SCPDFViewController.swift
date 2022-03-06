@@ -9,7 +9,6 @@
 import UIKit
 import CoreGraphics
 import Alamofire
-import PureLayout
 
 extension CGPDFPage {
     /// original size of the PDF page.
@@ -50,21 +49,21 @@ class GridPreviewCell : UICollectionViewCell {
         backgroundColor = .clear
         
         addSubview(imgImage)
-        imgImage.autoPinEdge(toSuperviewEdge: .top)
-        imgImage.autoPinEdge(toSuperviewEdge: .left)
-        imgImage.autoPinEdge(toSuperviewEdge: .right)
-        imgImage.autoSetDimension(.height, toSize: frame.size.height-15)
+        imgImage.sc_pinEdge(toSuperViewEdge: .top)
+        imgImage.sc_pinEdge(toSuperViewEdge: .left)
+        imgImage.sc_pinEdge(toSuperViewEdge: .right)
+        imgImage.sc_setDimension(.height, withValue: frame.size.height-15)
 
         addSubview(lblText)
-        lblText.autoPinEdge(.top, to: .bottom, of: imgImage)
-        lblText.autoPinEdge(toSuperviewEdge: .left)
-        lblText.autoPinEdge(toSuperviewEdge: .right)
-        lblText.autoPinEdge(toSuperviewEdge: .bottom, withInset: 3)
+        lblText.sc_pinEdge(.top, toEdge: .bottom, ofView: imgImage)
+        imgImage.sc_pinEdge(toSuperViewEdge: .left)
+        imgImage.sc_pinEdge(toSuperViewEdge: .right)
+        imgImage.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: 3)
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        imgImage.autoSetDimension(.height, toSize: frame.size.height-15)
+        imgImage.sc_setDimension(.height, withValue: frame.size.height-15)
     }
     
     func configure(media: SCMedia, pageNumber: Int) {
@@ -503,9 +502,9 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
         }
         
         view.addSubview(gridContainer)
-        gridContainer.autoPinEdge(.left, to: .left, of: view)
-        gridContainer.autoPinEdge(.right, to: .right, of: view)
-        gridContainer.autoSetDimension(.height, toSize: 95+UIView.safeArea.bottom)
+        gridContainer.sc_pinEdge(.left, toEdge: .left, ofView: view)
+        gridContainer.sc_pinEdge(.right, toEdge: .right, ofView: view)
+        gridContainer.sc_setDimension(.height, withValue: 95+UIView.safeArea.bottom)
         
         cntGridContainerBottom = NSLayoutConstraint(item: gridContainer, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1, constant: 95+UIView.safeArea.bottom)
         view.addConstraint(cntGridContainerBottom)
@@ -514,19 +513,19 @@ open class SCPDFViewController: SCMediaViewController, SCMediaViewControllerDele
         gridPreview.delegate = self
         
         gridContainer.addSubview(gridPreview)
-        gridPreview.autoPinEdgesToSuperviewEdges(with: .zero, excludingEdge: .bottom)
-        gridPreview.autoSetDimension(.height, toSize: 95)
+        gridPreview.sc_pinEdgesToSuperViewEdges(withInsets: .zero, exceptEdge: .bottom)
+        gridPreview.sc_setDimension(.height, withValue: 95)
         
         gridSpinner.startAnimating()
         gridContainer.addSubview(gridSpinner)
-        gridSpinner.autoPinEdge(toSuperviewEdge: .top, withInset: 20)
-        gridSpinner.autoAlignAxis(toSuperviewAxis: .vertical)
+        gridSpinner.sc_pinEdge(toSuperViewEdge: .top, withOffset: 20)
+        gridSpinner.sc_alignAxisToSuperview(axis: .horizontal)
         
         gridButton.addTarget(self, action: #selector(didTapGridButton), for: .touchUpInside)
         view.addSubview(gridButton)
-        gridButton.autoPinEdge(.bottom, to: .top, of: gridContainer)
-        gridButton.autoPinEdge(toSuperviewEdge: .right)
-        gridButton.autoSetDimensions(to: CGSize(width: 50, height: 35))
+        gridButton.sc_pinEdge(.bottom, toEdge: .top, ofView: gridContainer)
+        gridButton.sc_pinEdge(toSuperViewEdge: .right)
+        gridButton.sc_setSize(CGSize(width: 50, height: 35))
         
         self.getThumbnailsFromPDF { [weak self] in
             DispatchQueue.main.sync {

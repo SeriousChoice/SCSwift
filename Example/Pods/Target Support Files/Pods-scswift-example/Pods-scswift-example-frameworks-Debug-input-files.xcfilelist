@@ -1,7 +1,6 @@
 ${PODS_ROOT}/Target Support Files/Pods-scswift-example/Pods-scswift-example-frameworks.sh
 ${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework
 ${BUILT_PRODUCTS_DIR}/Cache/Cache.framework
-${BUILT_PRODUCTS_DIR}/PureLayout/PureLayout.framework
 ${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework
 ${BUILT_PRODUCTS_DIR}/RxRelay/RxRelay.framework
 ${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework

@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PureLayout
 
 public protocol SCSwitchTableCellDelegate : AnyObject {
     func scSwitchTableCellDidChangeSelection(cell: SCSwitchTableCell)
@@ -42,20 +41,17 @@ public class SCSwitchTableCell: UITableViewCell {
     private func setupLayout() {
         let margin = SCFormViewController.cellsMargin
         
-        addSubview(lblTitle)
-        lblTitle.autoSetDimension(.height, toSize: 20, relation: .greaterThanOrEqual)
-        lblTitle.autoPinEdge(toSuperviewEdge: .top, withInset: margin)
-        lblTitle.autoPinEdge(toSuperviewEdge: .leading, withInset: 20)
-        lblTitle.autoPinEdge(toSuperviewEdge: .bottom, withInset: margin)
-        lblTitle.autoPinEdge(.trailing, to: .leading, of: swSwitch, withOffset: -20)
+        contentView.addSubview(lblTitle)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .top, withOffset: margin)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .leading, withOffset: 20)
+        lblTitle.sc_pinEdge(toSuperViewEdge: .bottom, withOffset: -margin)
         
         swSwitch.setOn(false, animated: false)
         swSwitch.addTarget(self, action: #selector(switchDidChangeValue(sender:)), for: .valueChanged)
-        addSubview(swSwitch)
-        swSwitch.autoSetDimension(.width, toSize: 49, relation: .equal)
-        swSwitch.autoSetDimension(.height, toSize: 31, relation: .equal)
-        swSwitch.autoPinEdge(toSuperviewEdge: .trailing, withInset: 20)
-        swSwitch.autoAlignAxis(toSuperviewAxis: .horizontal)
+        contentView.addSubview(swSwitch)
+        swSwitch.sc_pinEdge(toSuperViewEdge: .trailing, withOffset: -20)
+        swSwitch.sc_pinEdge(.leading, toEdge: .trailing, ofView: lblTitle, withOffset: 20, withRelation: .greaterOrEqual)
+        swSwitch.sc_alignAxis(axis: .vertical, toView: lblTitle)
     }
     
     override public func setSelected(_ selected: Bool, animated: Bool) {
