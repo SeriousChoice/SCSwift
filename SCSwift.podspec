@@ -136,7 +136,6 @@ Pod::Spec.new do |s|
 
   s.dependency 'SDWebImage'
   s.dependency 'Cache'
-  s.dependency 'TTTAttributedLabel'
   s.dependency 'Alamofire'
   s.dependency 'RxSwift'
   s.dependency 'RxCocoa'
